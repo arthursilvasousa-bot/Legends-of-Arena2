@@ -1,0 +1,257 @@
+{
+  "sequences": {
+    "idle": {
+      "file": "/assets/minotaur_wallace/idle.png",
+      "frameWidth": 52,
+      "frameHeight": 90,
+      "frameCount": 4,
+      "fps": 7,
+      "loop": true,
+      "anchorX": 26,
+      "anchorY": 86
+    },
+    "walk": {
+      "file": "/assets/minotaur_wallace/walk.png",
+      "frameWidth": 58,
+      "frameHeight": 88,
+      "frameCount": 4,
+      "fps": 10,
+      "loop": true,
+      "anchorX": 34,
+      "anchorY": 85
+    },
+    "run": {
+      "file": "/assets/minotaur_wallace/run.png",
+      "frameWidth": 74,
+      "frameHeight": 90,
+      "frameCount": 4,
+      "fps": 14,
+      "loop": true,
+      "anchorX": 43,
+      "anchorY": 86
+    },
+    "jump": {
+      "file": "/assets/minotaur_wallace/jump.png",
+      "frameWidth": 48,
+      "frameHeight": 84,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 23,
+      "anchorY": 80
+    },
+    "crouch": {
+      "file": "/assets/minotaur_wallace/crouch.png",
+      "frameWidth": 50,
+      "frameHeight": 78,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 26,
+      "anchorY": 74
+    },
+    "standup": {
+      "file": "/assets/minotaur_wallace/standup.png",
+      "frameWidth": 50,
+      "frameHeight": 76,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 26,
+      "anchorY": 72
+    },
+    "block": {
+      "file": "/assets/minotaur_wallace/block.png",
+      "frameWidth": 40,
+      "frameHeight": 76,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": true,
+      "anchorX": 19,
+      "anchorY": 73
+    },
+    "roll": {
+      "file": "/assets/minotaur_wallace/roll.png",
+      "frameWidth": 52,
+      "frameHeight": 64,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 33,
+      "anchorY": 60
+    },
+    "knockdown": {
+      "file": "/assets/minotaur_wallace/knockdown.png",
+      "frameWidth": 80,
+      "frameHeight": 50,
+      "frameCount": 2,
+      "fps": 8,
+      "loop": false,
+      "anchorX": 45,
+      "anchorY": 47
+    },
+    "getup": {
+      "file": "/assets/minotaur_wallace/getup.png",
+      "frameWidth": 50,
+      "frameHeight": 64,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 26,
+      "anchorY": 61
+    },
+    "punch": {
+      "file": "/assets/minotaur_wallace/punch.png",
+      "frameWidth": 88,
+      "frameHeight": 78,
+      "frameCount": 3,
+      "fps": 14,
+      "loop": false,
+      "anchorX": 33,
+      "anchorY": 75
+    },
+    "kick": {
+      "file": "/assets/minotaur_wallace/kick.png",
+      "frameWidth": 78,
+      "frameHeight": 80,
+      "frameCount": 3,
+      "fps": 14,
+      "loop": false,
+      "anchorX": 36,
+      "anchorY": 77
+    },
+    "heavy_punch": {
+      "file": "/assets/minotaur_wallace/heavy_punch.png",
+      "frameWidth": 74,
+      "frameHeight": 80,
+      "frameCount": 3,
+      "fps": 11,
+      "loop": false,
+      "anchorX": 35,
+      "anchorY": 77
+    },
+    "heavy_kick": {
+      "file": "/assets/minotaur_wallace/heavy_kick.png",
+      "frameWidth": 70,
+      "frameHeight": 78,
+      "frameCount": 3,
+      "fps": 11,
+      "loop": false,
+      "anchorX": 26,
+      "anchorY": 75
+    },
+    "grab": {
+      "file": "/assets/minotaur_wallace/grab.png",
+      "frameWidth": 64,
+      "frameHeight": 76,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 40,
+      "anchorY": 73
+    },
+    "throw": {
+      "file": "/assets/minotaur_wallace/throw.png",
+      "frameWidth": 66,
+      "frameHeight": 94,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 38,
+      "anchorY": 91
+    },
+    "special_brutal_rush": {
+      "file": "/assets/minotaur_wallace/special_brutal_rush.png",
+      "frameWidth": 76,
+      "frameHeight": 88,
+      "frameCount": 4,
+      "fps": 14,
+      "loop": false,
+      "anchorX": 43,
+      "anchorY": 85
+    },
+    "special_seismic_stomp": {
+      "file": "/assets/minotaur_wallace/special_seismic_stomp.png",
+      "frameWidth": 86,
+      "frameHeight": 84,
+      "frameCount": 4,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 41,
+      "anchorY": 80
+    },
+    "special_devastating_horn": {
+      "file": "/assets/minotaur_wallace/special_devastating_horn.png",
+      "frameWidth": 88,
+      "frameHeight": 86,
+      "frameCount": 3,
+      "fps": 14,
+      "loop": false,
+      "anchorX": 46,
+      "anchorY": 83
+    },
+    "special_coliseum_throw": {
+      "file": "/assets/minotaur_wallace/special_coliseum_throw.png",
+      "frameWidth": 84,
+      "frameHeight": 94,
+      "frameCount": 4,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 42,
+      "anchorY": 91
+    },
+    "finisher": {
+      "file": "/assets/minotaur_wallace/finisher.png",
+      "frameWidth": 136,
+      "frameHeight": 122,
+      "frameCount": 5,
+      "fps": 8,
+      "loop": false,
+      "anchorX": 67,
+      "anchorY": 119
+    },
+    "victory": {
+      "file": "/assets/minotaur_wallace/victory.png",
+      "frameWidth": 136,
+      "frameHeight": 122,
+      "frameCount": 5,
+      "fps": 8,
+      "loop": false,
+      "anchorX": 67,
+      "anchorY": 119
+    }
+  },
+  "fx": {
+    "fx_minotaur_earth_impact": {
+      "file": "/assets/minotaur_wallace/fx_minotaur_earth_impact.png",
+      "width": 76,
+      "height": 73
+    },
+    "fx_minotaur_shockwave": {
+      "file": "/assets/minotaur_wallace/fx_minotaur_shockwave.png",
+      "width": 89,
+      "height": 74
+    },
+    "fx_minotaur_dust_trail": {
+      "file": "/assets/minotaur_wallace/fx_minotaur_dust_trail.png",
+      "width": 98,
+      "height": 75
+    },
+    "fx_minotaur_sparks": {
+      "file": "/assets/minotaur_wallace/fx_minotaur_sparks.png",
+      "width": 83,
+      "height": 73
+    },
+    "fx_minotaur_rocks": {
+      "file": "/assets/minotaur_wallace/fx_minotaur_rocks.png",
+      "width": 84,
+      "height": 61
+    },
+    "fx_minotaur_fury_aura": {
+      "file": "/assets/minotaur_wallace/fx_minotaur_fury_aura.png",
+      "width": 81,
+      "height": 80
+    }
+  },
+  "portrait": "/assets/minotaur_wallace/portrait.png"
+}

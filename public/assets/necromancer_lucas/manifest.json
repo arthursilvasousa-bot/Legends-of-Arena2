@@ -1,0 +1,297 @@
+{
+  "sequences": {
+    "idle": {
+      "file": "/assets/necromancer_lucas/idle.png",
+      "frameWidth": 102,
+      "frameHeight": 118,
+      "frameCount": 4,
+      "fps": 6,
+      "loop": true,
+      "anchorX": 65,
+      "anchorY": 114
+    },
+    "walk": {
+      "file": "/assets/necromancer_lucas/walk.png",
+      "frameWidth": 90,
+      "frameHeight": 114,
+      "frameCount": 4,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 56,
+      "anchorY": 110
+    },
+    "run": {
+      "file": "/assets/necromancer_lucas/run.png",
+      "frameWidth": 110,
+      "frameHeight": 120,
+      "frameCount": 3,
+      "fps": 16,
+      "loop": true,
+      "anchorX": 69,
+      "anchorY": 116
+    },
+    "jump": {
+      "file": "/assets/necromancer_lucas/jump.png",
+      "frameWidth": 112,
+      "frameHeight": 132,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 58,
+      "anchorY": 129
+    },
+    "crouch": {
+      "file": "/assets/necromancer_lucas/crouch.png",
+      "frameWidth": 92,
+      "frameHeight": 88,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 63,
+      "anchorY": 84
+    },
+    "standup": {
+      "file": "/assets/necromancer_lucas/standup.png",
+      "frameWidth": 80,
+      "frameHeight": 104,
+      "frameCount": 2,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 42,
+      "anchorY": 101
+    },
+    "block": {
+      "file": "/assets/necromancer_lucas/block.png",
+      "frameWidth": 128,
+      "frameHeight": 110,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": true,
+      "anchorX": 61,
+      "anchorY": 106
+    },
+    "roll": {
+      "file": "/assets/necromancer_lucas/roll.png",
+      "frameWidth": 96,
+      "frameHeight": 100,
+      "frameCount": 4,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 59,
+      "anchorY": 96
+    },
+    "knockdown": {
+      "file": "/assets/necromancer_lucas/knockdown.png",
+      "frameWidth": 118,
+      "frameHeight": 74,
+      "frameCount": 3,
+      "fps": 8,
+      "loop": false,
+      "anchorX": 70,
+      "anchorY": 69
+    },
+    "getup": {
+      "file": "/assets/necromancer_lucas/getup.png",
+      "frameWidth": 108,
+      "frameHeight": 104,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 58,
+      "anchorY": 100
+    },
+    "punch": {
+      "file": "/assets/necromancer_lucas/punch.png",
+      "frameWidth": 98,
+      "frameHeight": 106,
+      "frameCount": 3,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 60,
+      "anchorY": 102
+    },
+    "kick": {
+      "file": "/assets/necromancer_lucas/kick.png",
+      "frameWidth": 98,
+      "frameHeight": 110,
+      "frameCount": 2,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 58,
+      "anchorY": 106
+    },
+    "heavy_punch": {
+      "file": "/assets/necromancer_lucas/heavy_punch.png",
+      "frameWidth": 106,
+      "frameHeight": 124,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 55,
+      "anchorY": 120
+    },
+    "heavy_kick": {
+      "file": "/assets/necromancer_lucas/heavy_kick.png",
+      "frameWidth": 126,
+      "frameHeight": 108,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 64,
+      "anchorY": 104
+    },
+    "staff_attack": {
+      "file": "/assets/necromancer_lucas/staff_attack.png",
+      "frameWidth": 108,
+      "frameHeight": 112,
+      "frameCount": 3,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 67,
+      "anchorY": 109
+    },
+    "staff_slam": {
+      "file": "/assets/necromancer_lucas/staff_slam.png",
+      "frameWidth": 130,
+      "frameHeight": 118,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 72,
+      "anchorY": 114
+    },
+    "grab": {
+      "file": "/assets/necromancer_lucas/grab.png",
+      "frameWidth": 118,
+      "frameHeight": 112,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 58,
+      "anchorY": 108
+    },
+    "throw": {
+      "file": "/assets/necromancer_lucas/throw.png",
+      "frameWidth": 118,
+      "frameHeight": 110,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 58,
+      "anchorY": 106
+    },
+    "special_dark_sphere": {
+      "file": "/assets/necromancer_lucas/special_dark_sphere.png",
+      "frameWidth": 106,
+      "frameHeight": 114,
+      "frameCount": 6,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 57,
+      "anchorY": 110
+    },
+    "special_underworld_hands": {
+      "file": "/assets/necromancer_lucas/special_underworld_hands.png",
+      "frameWidth": 124,
+      "frameHeight": 110,
+      "frameCount": 2,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 65,
+      "anchorY": 106
+    },
+    "special_spectral_army": {
+      "file": "/assets/necromancer_lucas/special_spectral_army.png",
+      "frameWidth": 80,
+      "frameHeight": 108,
+      "frameCount": 2,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 55,
+      "anchorY": 104
+    },
+    "special_shadow_teleport": {
+      "file": "/assets/necromancer_lucas/special_shadow_teleport.png",
+      "frameWidth": 146,
+      "frameHeight": 110,
+      "frameCount": 4,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 69,
+      "anchorY": 105
+    },
+    "finisher": {
+      "file": "/assets/necromancer_lucas/finisher.png",
+      "frameWidth": 150,
+      "frameHeight": 150,
+      "frameCount": 10,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 89,
+      "anchorY": 146
+    },
+    "victory": {
+      "file": "/assets/necromancer_lucas/victory.png",
+      "frameWidth": 108,
+      "frameHeight": 150,
+      "frameCount": 7,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 50,
+      "anchorY": 146
+    }
+  },
+  "fx": {
+    "fx_necro_dark_sphere": {
+      "file": "/assets/necromancer_lucas/fx_necro_dark_sphere.png",
+      "width": 88,
+      "height": 80
+    },
+    "fx_necro_portal": {
+      "file": "/assets/necromancer_lucas/fx_necro_portal.png",
+      "width": 61,
+      "height": 80
+    },
+    "fx_necro_chains": {
+      "file": "/assets/necromancer_lucas/fx_necro_chains.png",
+      "width": 108,
+      "height": 80
+    },
+    "fx_necro_soul_explosion": {
+      "file": "/assets/necromancer_lucas/fx_necro_soul_explosion.png",
+      "width": 91,
+      "height": 80
+    },
+    "fx_necro_skulls": {
+      "file": "/assets/necromancer_lucas/fx_necro_skulls.png",
+      "width": 81,
+      "height": 68
+    },
+    "fx_necro_smoke": {
+      "file": "/assets/necromancer_lucas/fx_necro_smoke.png",
+      "width": 97,
+      "height": 71
+    },
+    "fx_necro_aura": {
+      "file": "/assets/necromancer_lucas/fx_necro_aura.png",
+      "width": 109,
+      "height": 71
+    },
+    "fx_necro_sigils": {
+      "file": "/assets/necromancer_lucas/fx_necro_sigils.png",
+      "width": 88,
+      "height": 75
+    },
+    "fx_necro_hand": {
+      "file": "/assets/necromancer_lucas/fx_necro_hand.png",
+      "width": 76,
+      "height": 107
+    },
+    "fx_necro_specter": {
+      "file": "/assets/necromancer_lucas/fx_necro_specter.png",
+      "width": 74,
+      "height": 98
+    }
+  },
+  "portrait": "/assets/necromancer_lucas/portrait.png"
+}

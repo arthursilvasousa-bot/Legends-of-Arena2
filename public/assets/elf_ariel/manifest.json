@@ -1,0 +1,292 @@
+{
+  "sequences": {
+    "idle": {
+      "file": "/assets/elf_ariel/idle.png",
+      "frameWidth": 100,
+      "frameHeight": 120,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true,
+      "anchorX": 55,
+      "anchorY": 116
+    },
+    "walk": {
+      "file": "/assets/elf_ariel/walk.png",
+      "frameWidth": 100,
+      "frameHeight": 118,
+      "frameCount": 8,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 64,
+      "anchorY": 114
+    },
+    "run": {
+      "file": "/assets/elf_ariel/run.png",
+      "frameWidth": 126,
+      "frameHeight": 118,
+      "frameCount": 8,
+      "fps": 16,
+      "loop": true,
+      "anchorX": 81,
+      "anchorY": 113
+    },
+    "jump": {
+      "file": "/assets/elf_ariel/jump.png",
+      "frameWidth": 134,
+      "frameHeight": 118,
+      "frameCount": 8,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 86,
+      "anchorY": 113
+    },
+    "crouch": {
+      "file": "/assets/elf_ariel/crouch.png",
+      "frameWidth": 96,
+      "frameHeight": 98,
+      "frameCount": 4,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 52,
+      "anchorY": 94
+    },
+    "standup": {
+      "file": "/assets/elf_ariel/standup.png",
+      "frameWidth": 88,
+      "frameHeight": 118,
+      "frameCount": 4,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 54,
+      "anchorY": 114
+    },
+    "block": {
+      "file": "/assets/elf_ariel/block.png",
+      "frameWidth": 92,
+      "frameHeight": 108,
+      "frameCount": 4,
+      "fps": 10,
+      "loop": true,
+      "anchorX": 56,
+      "anchorY": 104
+    },
+    "roll": {
+      "file": "/assets/elf_ariel/roll.png",
+      "frameWidth": 98,
+      "frameHeight": 106,
+      "frameCount": 6,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 54,
+      "anchorY": 102
+    },
+    "knockdown": {
+      "file": "/assets/elf_ariel/knockdown.png",
+      "frameWidth": 122,
+      "frameHeight": 98,
+      "frameCount": 6,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 38,
+      "anchorY": 94
+    },
+    "getup": {
+      "file": "/assets/elf_ariel/getup.png",
+      "frameWidth": 138,
+      "frameHeight": 118,
+      "frameCount": 6,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 54,
+      "anchorY": 114
+    },
+    "punch": {
+      "file": "/assets/elf_ariel/punch.png",
+      "frameWidth": 112,
+      "frameHeight": 104,
+      "frameCount": 5,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 54,
+      "anchorY": 100
+    },
+    "kick": {
+      "file": "/assets/elf_ariel/kick.png",
+      "frameWidth": 100,
+      "frameHeight": 102,
+      "frameCount": 5,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 50,
+      "anchorY": 98
+    },
+    "heavy_punch": {
+      "file": "/assets/elf_ariel/heavy_punch.png",
+      "frameWidth": 122,
+      "frameHeight": 112,
+      "frameCount": 6,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 64,
+      "anchorY": 108
+    },
+    "heavy_kick": {
+      "file": "/assets/elf_ariel/heavy_kick.png",
+      "frameWidth": 164,
+      "frameHeight": 120,
+      "frameCount": 6,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 61,
+      "anchorY": 115
+    },
+    "grab": {
+      "file": "/assets/elf_ariel/grab.png",
+      "frameWidth": 114,
+      "frameHeight": 106,
+      "frameCount": 8,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 63,
+      "anchorY": 102
+    },
+    "throw": {
+      "file": "/assets/elf_ariel/throw.png",
+      "frameWidth": 168,
+      "frameHeight": 120,
+      "frameCount": 8,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 64,
+      "anchorY": 115
+    },
+    "special_flamejante": {
+      "file": "/assets/elf_ariel/special_flamejante.png",
+      "frameWidth": 112,
+      "frameHeight": 114,
+      "frameCount": 10,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 45,
+      "anchorY": 110
+    },
+    "special_congelante": {
+      "file": "/assets/elf_ariel/special_congelante.png",
+      "frameWidth": 164,
+      "frameHeight": 120,
+      "frameCount": 10,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 72,
+      "anchorY": 115
+    },
+    "special_chuva": {
+      "file": "/assets/elf_ariel/special_chuva.png",
+      "frameWidth": 146,
+      "frameHeight": 128,
+      "frameCount": 12,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 79,
+      "anchorY": 124
+    },
+    "special_arcana": {
+      "file": "/assets/elf_ariel/special_arcana.png",
+      "frameWidth": 298,
+      "frameHeight": 120,
+      "frameCount": 12,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 71,
+      "anchorY": 116
+    },
+    "finisher": {
+      "file": "/assets/elf_ariel/finisher.png",
+      "frameWidth": 202,
+      "frameHeight": 124,
+      "frameCount": 10,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 75,
+      "anchorY": 120
+    },
+    "victory": {
+      "file": "/assets/elf_ariel/victory.png",
+      "frameWidth": 118,
+      "frameHeight": 118,
+      "frameCount": 5,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 56,
+      "anchorY": 114
+    }
+  },
+  "fx": {
+    "fx_elf_fire_arrow": {
+      "file": "/assets/elf_ariel/fx_elf_fire_arrow.png",
+      "width": 79,
+      "height": 32
+    },
+    "fx_elf_ice_arrow": {
+      "file": "/assets/elf_ariel/fx_elf_ice_arrow.png",
+      "width": 155,
+      "height": 29
+    },
+    "fx_elf_rain_arrow": {
+      "file": "/assets/elf_ariel/fx_elf_rain_arrow.png",
+      "width": 17,
+      "height": 37
+    },
+    "fx_elf_arcane_arrow": {
+      "file": "/assets/elf_ariel/fx_elf_arcane_arrow.png",
+      "width": 77,
+      "height": 30
+    },
+    "fx_elf_green_burst": {
+      "file": "/assets/elf_ariel/fx_elf_green_burst.png",
+      "width": 87,
+      "height": 49
+    },
+    "fx_elf_green_slash": {
+      "file": "/assets/elf_ariel/fx_elf_green_slash.png",
+      "width": 107,
+      "height": 115
+    },
+    "fx_elf_ice_wave": {
+      "file": "/assets/elf_ariel/fx_elf_ice_wave.png",
+      "width": 99,
+      "height": 95
+    },
+    "fx_elf_ice_burst": {
+      "file": "/assets/elf_ariel/fx_elf_ice_burst.png",
+      "width": 220,
+      "height": 116
+    },
+    "fx_elf_arcane_portal": {
+      "file": "/assets/elf_ariel/fx_elf_arcane_portal.png",
+      "width": 65,
+      "height": 114
+    },
+    "fx_elf_arcane_explosion": {
+      "file": "/assets/elf_ariel/fx_elf_arcane_explosion.png",
+      "width": 208,
+      "height": 115
+    },
+    "fx_elf_gold_beam": {
+      "file": "/assets/elf_ariel/fx_elf_gold_beam.png",
+      "width": 514,
+      "height": 91
+    },
+    "fx_elf_gold_crescent": {
+      "file": "/assets/elf_ariel/fx_elf_gold_crescent.png",
+      "width": 51,
+      "height": 84
+    },
+    "fx_elf_trail": {
+      "file": "/assets/elf_ariel/fx_elf_trail.png",
+      "width": 102,
+      "height": 37
+    }
+  },
+  "portrait": "/assets/elf_ariel/portrait.png"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Legends of the Arena",
+  "description": "Jogo de luta 2D estilo arcade dos anos 90 com 6 lutadores únicos, cenários em pixel art, golpes especiais, combos, modo Arcade contra IA e 2 jogadores locais.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

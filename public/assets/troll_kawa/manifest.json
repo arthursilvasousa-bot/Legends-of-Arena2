@@ -1,0 +1,287 @@
+{
+  "sequences": {
+    "idle": {
+      "file": "/assets/troll_kawa/idle.png",
+      "frameWidth": 72,
+      "frameHeight": 109,
+      "frameCount": 4,
+      "fps": 6,
+      "loop": true,
+      "anchorX": 38,
+      "anchorY": 106
+    },
+    "walk": {
+      "file": "/assets/troll_kawa/walk.png",
+      "frameWidth": 73,
+      "frameHeight": 107,
+      "frameCount": 5,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 37,
+      "anchorY": 104
+    },
+    "run": {
+      "file": "/assets/troll_kawa/run.png",
+      "frameWidth": 95,
+      "frameHeight": 110,
+      "frameCount": 4,
+      "fps": 16,
+      "loop": true,
+      "anchorX": 47,
+      "anchorY": 107
+    },
+    "jump": {
+      "file": "/assets/troll_kawa/jump.png",
+      "frameWidth": 80,
+      "frameHeight": 108,
+      "frameCount": 4,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 35,
+      "anchorY": 105
+    },
+    "crouch": {
+      "file": "/assets/troll_kawa/crouch.png",
+      "frameWidth": 81,
+      "frameHeight": 67,
+      "frameCount": 2,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 42,
+      "anchorY": 64
+    },
+    "standup": {
+      "file": "/assets/troll_kawa/standup.png",
+      "frameWidth": 52,
+      "frameHeight": 88,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 26,
+      "anchorY": 85
+    },
+    "block": {
+      "file": "/assets/troll_kawa/block.png",
+      "frameWidth": 95,
+      "frameHeight": 106,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": true,
+      "anchorX": 45,
+      "anchorY": 103
+    },
+    "roll": {
+      "file": "/assets/troll_kawa/roll.png",
+      "frameWidth": 97,
+      "frameHeight": 83,
+      "frameCount": 4,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 49,
+      "anchorY": 80
+    },
+    "knockdown": {
+      "file": "/assets/troll_kawa/knockdown.png",
+      "frameWidth": 132,
+      "frameHeight": 67,
+      "frameCount": 3,
+      "fps": 8,
+      "loop": false,
+      "anchorX": 68,
+      "anchorY": 64
+    },
+    "getup": {
+      "file": "/assets/troll_kawa/getup.png",
+      "frameWidth": 81,
+      "frameHeight": 98,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 33,
+      "anchorY": 95
+    },
+    "punch": {
+      "file": "/assets/troll_kawa/punch.png",
+      "frameWidth": 84,
+      "frameHeight": 100,
+      "frameCount": 3,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 40,
+      "anchorY": 97
+    },
+    "kick": {
+      "file": "/assets/troll_kawa/kick.png",
+      "frameWidth": 65,
+      "frameHeight": 96,
+      "frameCount": 3,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 36,
+      "anchorY": 93
+    },
+    "heavy_punch": {
+      "file": "/assets/troll_kawa/heavy_punch.png",
+      "frameWidth": 106,
+      "frameHeight": 109,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 52,
+      "anchorY": 106
+    },
+    "heavy_kick": {
+      "file": "/assets/troll_kawa/heavy_kick.png",
+      "frameWidth": 139,
+      "frameHeight": 101,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 55,
+      "anchorY": 98
+    },
+    "grab": {
+      "file": "/assets/troll_kawa/grab.png",
+      "frameWidth": 98,
+      "frameHeight": 113,
+      "frameCount": 4,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 52,
+      "anchorY": 110
+    },
+    "throw": {
+      "file": "/assets/troll_kawa/throw.png",
+      "frameWidth": 102,
+      "frameHeight": 114,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 46,
+      "anchorY": 111
+    },
+    "ground_smash": {
+      "file": "/assets/troll_kawa/ground_smash.png",
+      "frameWidth": 170,
+      "frameHeight": 110,
+      "frameCount": 3,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 86,
+      "anchorY": 107
+    },
+    "special_pancada_brutal": {
+      "file": "/assets/troll_kawa/special_pancada_brutal.png",
+      "frameWidth": 159,
+      "frameHeight": 141,
+      "frameCount": 7,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 67,
+      "anchorY": 138
+    },
+    "special_salto_esmagador": {
+      "file": "/assets/troll_kawa/special_salto_esmagador.png",
+      "frameWidth": 240,
+      "frameHeight": 135,
+      "frameCount": 6,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 121,
+      "anchorY": 132
+    },
+    "special_arremesso_pedra": {
+      "file": "/assets/troll_kawa/special_arremesso_pedra.png",
+      "frameWidth": 127,
+      "frameHeight": 144,
+      "frameCount": 4,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 52,
+      "anchorY": 141
+    },
+    "special_furia_troll": {
+      "file": "/assets/troll_kawa/special_furia_troll.png",
+      "frameWidth": 138,
+      "frameHeight": 168,
+      "frameCount": 6,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 69,
+      "anchorY": 165
+    },
+    "fury_idle": {
+      "file": "/assets/troll_kawa/fury_idle.png",
+      "frameWidth": 138,
+      "frameHeight": 168,
+      "frameCount": 2,
+      "fps": 6,
+      "loop": true,
+      "anchorX": 69,
+      "anchorY": 165
+    },
+    "victory": {
+      "file": "/assets/troll_kawa/victory.png",
+      "frameWidth": 138,
+      "frameHeight": 168,
+      "frameCount": 6,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 69,
+      "anchorY": 165
+    }
+  },
+  "fx": {
+    "fx_troll_earth_explosion": {
+      "file": "/assets/troll_kawa/fx_troll_earth_explosion.png",
+      "width": 162,
+      "height": 118
+    },
+    "fx_troll_ground_impact": {
+      "file": "/assets/troll_kawa/fx_troll_ground_impact.png",
+      "width": 108,
+      "height": 108
+    },
+    "fx_troll_boulder_large": {
+      "file": "/assets/troll_kawa/fx_troll_boulder_large.png",
+      "width": 59,
+      "height": 57
+    },
+    "fx_troll_pebbles": {
+      "file": "/assets/troll_kawa/fx_troll_pebbles.png",
+      "width": 78,
+      "height": 122
+    },
+    "fx_troll_shockwaves": {
+      "file": "/assets/troll_kawa/fx_troll_shockwaves.png",
+      "width": 154,
+      "height": 105
+    },
+    "fx_troll_rock_trail": {
+      "file": "/assets/troll_kawa/fx_troll_rock_trail.png",
+      "width": 132,
+      "height": 108
+    },
+    "fx_troll_fury_aura": {
+      "file": "/assets/troll_kawa/fx_troll_fury_aura.png",
+      "width": 117,
+      "height": 123
+    },
+    "fx_troll_fury_particles": {
+      "file": "/assets/troll_kawa/fx_troll_fury_particles.png",
+      "width": 132,
+      "height": 107
+    },
+    "fx_troll_dust": {
+      "file": "/assets/troll_kawa/fx_troll_dust.png",
+      "width": 123,
+      "height": 99
+    },
+    "fx_troll_trail": {
+      "file": "/assets/troll_kawa/fx_troll_trail.png",
+      "width": 149,
+      "height": 111
+    }
+  },
+  "portrait": "/assets/troll_kawa/portrait.png"
+}

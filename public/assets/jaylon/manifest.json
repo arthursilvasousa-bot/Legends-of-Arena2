@@ -1,0 +1,298 @@
+{
+  "source": "public/assets/aistudio/Sprite_de_Anima__es_do_Jaylon_cdbe5554.png",
+  "sequences": {
+    "idle": {
+      "file": "/assets/jaylon/animations/idle.png",
+      "frameWidth": 116,
+      "frameHeight": 176,
+      "frameCount": 4,
+      "fps": 6,
+      "loop": true,
+      "anchorX": 64,
+      "anchorY": 172
+    },
+    "walk": {
+      "file": "/assets/jaylon/animations/walk.png",
+      "frameWidth": 92,
+      "frameHeight": 156,
+      "frameCount": 5,
+      "fps": 10,
+      "loop": true,
+      "anchorX": 50,
+      "anchorY": 152
+    },
+    "run": {
+      "file": "/assets/jaylon/animations/run.png",
+      "frameWidth": 122,
+      "frameHeight": 154,
+      "frameCount": 4,
+      "fps": 13,
+      "loop": true,
+      "anchorX": 62,
+      "anchorY": 150
+    },
+    "jump": {
+      "file": "/assets/jaylon/animations/jump.png",
+      "frameWidth": 104,
+      "frameHeight": 144,
+      "frameCount": 4,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 57,
+      "anchorY": 140
+    },
+    "crouch": {
+      "file": "/assets/jaylon/animations/crouch.png",
+      "frameWidth": 128,
+      "frameHeight": 122,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 60,
+      "anchorY": 118
+    },
+    "standup": {
+      "file": "/assets/jaylon/animations/standup.png",
+      "frameWidth": 88,
+      "frameHeight": 156,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 43,
+      "anchorY": 152
+    },
+    "block": {
+      "file": "/assets/jaylon/animations/block.png",
+      "frameWidth": 114,
+      "frameHeight": 150,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": true,
+      "anchorX": 66,
+      "anchorY": 146
+    },
+    "roll": {
+      "file": "/assets/jaylon/animations/roll.png",
+      "frameWidth": 118,
+      "frameHeight": 136,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 49,
+      "anchorY": 132
+    },
+    "punch": {
+      "file": "/assets/jaylon/animations/punch.png",
+      "frameWidth": 132,
+      "frameHeight": 144,
+      "frameCount": 3,
+      "fps": 14,
+      "loop": false,
+      "anchorX": 58,
+      "anchorY": 140
+    },
+    "kick": {
+      "file": "/assets/jaylon/animations/kick.png",
+      "frameWidth": 138,
+      "frameHeight": 152,
+      "frameCount": 3,
+      "fps": 13,
+      "loop": false,
+      "anchorX": 50,
+      "anchorY": 148
+    },
+    "heavy_punch": {
+      "file": "/assets/jaylon/animations/heavy_punch.png",
+      "frameWidth": 132,
+      "frameHeight": 140,
+      "frameCount": 3,
+      "fps": 13,
+      "loop": false,
+      "anchorX": 58,
+      "anchorY": 136
+    },
+    "heavy_kick": {
+      "file": "/assets/jaylon/animations/heavy_kick.png",
+      "frameWidth": 138,
+      "frameHeight": 152,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 50,
+      "anchorY": 148
+    },
+    "grab": {
+      "file": "/assets/jaylon/animations/grab.png",
+      "frameWidth": 132,
+      "frameHeight": 144,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 58,
+      "anchorY": 140
+    },
+    "throw": {
+      "file": "/assets/jaylon/animations/throw.png",
+      "frameWidth": 92,
+      "frameHeight": 124,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 39,
+      "anchorY": 120
+    },
+    "damage": {
+      "file": "/assets/jaylon/animations/damage.png",
+      "frameWidth": 116,
+      "frameHeight": 142,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 61,
+      "anchorY": 138
+    },
+    "stun": {
+      "file": "/assets/jaylon/animations/stun.png",
+      "frameWidth": 112,
+      "frameHeight": 144,
+      "frameCount": 3,
+      "fps": 6,
+      "loop": true,
+      "anchorX": 54,
+      "anchorY": 140
+    },
+    "knockdown": {
+      "file": "/assets/jaylon/animations/knockdown.png",
+      "frameWidth": 148,
+      "frameHeight": 100,
+      "frameCount": 4,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 92,
+      "anchorY": 96
+    },
+    "getup": {
+      "file": "/assets/jaylon/animations/getup.png",
+      "frameWidth": 88,
+      "frameHeight": 156,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 43,
+      "anchorY": 152
+    },
+    "drink": {
+      "file": "/assets/jaylon/animations/drink.png",
+      "frameWidth": 94,
+      "frameHeight": 148,
+      "frameCount": 2,
+      "fps": 6,
+      "loop": false,
+      "anchorX": 40,
+      "anchorY": 144
+    },
+    "smoke": {
+      "file": "/assets/jaylon/animations/smoke.png",
+      "frameWidth": 96,
+      "frameHeight": 172,
+      "frameCount": 3,
+      "fps": 8,
+      "loop": false,
+      "anchorX": 39,
+      "anchorY": 168
+    },
+    "special_bottle": {
+      "file": "/assets/jaylon/animations/special_bottle.png",
+      "frameWidth": 124,
+      "frameHeight": 124,
+      "frameCount": 5,
+      "fps": 13,
+      "loop": false,
+      "anchorX": 71,
+      "anchorY": 120
+    },
+    "special_vomit": {
+      "file": "/assets/jaylon/animations/special_vomit.png",
+      "frameWidth": 120,
+      "frameHeight": 124,
+      "frameCount": 3,
+      "fps": 8,
+      "loop": false,
+      "anchorX": 55,
+      "anchorY": 120
+    },
+    "special_drink": {
+      "file": "/assets/jaylon/animations/special_drink.png",
+      "frameWidth": 124,
+      "frameHeight": 148,
+      "frameCount": 5,
+      "fps": 7,
+      "loop": false,
+      "anchorX": 59,
+      "anchorY": 145
+    },
+    "special_malboro": {
+      "file": "/assets/jaylon/animations/special_malboro.png",
+      "frameWidth": 136,
+      "frameHeight": 136,
+      "frameCount": 5,
+      "fps": 9,
+      "loop": false,
+      "anchorX": 70,
+      "anchorY": 133
+    },
+    "victory": {
+      "file": "/assets/jaylon/animations/victory.png",
+      "frameWidth": 122,
+      "frameHeight": 172,
+      "frameCount": 4,
+      "fps": 6,
+      "loop": false,
+      "anchorX": 64,
+      "anchorY": 168
+    }
+  },
+  "fx": {
+    "fx_jaylon_bottle_spin": {
+      "file": "/assets/jaylon/fx/fx_jaylon_bottle_spin.png",
+      "width": 58,
+      "height": 42
+    },
+    "fx_jaylon_bottle_impact": {
+      "file": "/assets/jaylon/fx/fx_jaylon_bottle_impact.png",
+      "width": 148,
+      "height": 101
+    },
+    "fx_jaylon_stun_stars": {
+      "file": "/assets/jaylon/fx/fx_jaylon_stun_stars.png",
+      "width": 107,
+      "height": 66
+    },
+    "fx_jaylon_vomit_stream": {
+      "file": "/assets/jaylon/fx/fx_jaylon_vomit_stream.png",
+      "width": 83,
+      "height": 86
+    },
+    "fx_jaylon_vomit_puddle": {
+      "file": "/assets/jaylon/fx/fx_jaylon_vomit_puddle.png",
+      "width": 203,
+      "height": 39
+    },
+    "fx_jaylon_smoke": {
+      "file": "/assets/jaylon/fx/fx_jaylon_smoke.png",
+      "width": 44,
+      "height": 97
+    },
+    "fx_jaylon_fire_breath": {
+      "file": "/assets/jaylon/fx/fx_jaylon_fire_breath.png",
+      "width": 323,
+      "height": 116
+    },
+    "fx_jaylon_fire_burst": {
+      "file": "/assets/jaylon/fx/fx_jaylon_fire_burst.png",
+      "width": 101,
+      "height": 109
+    }
+  },
+  "portrait": "/assets/jaylon/portrait.png"
+}

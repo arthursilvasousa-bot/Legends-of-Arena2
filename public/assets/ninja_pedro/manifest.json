@@ -1,0 +1,267 @@
+{
+  "sequences": {
+    "idle": {
+      "file": "/assets/ninja_pedro/idle.png",
+      "frameWidth": 64,
+      "frameHeight": 116,
+      "frameCount": 4,
+      "fps": 8,
+      "loop": true,
+      "anchorX": 30,
+      "anchorY": 111
+    },
+    "walk": {
+      "file": "/assets/ninja_pedro/walk.png",
+      "frameWidth": 82,
+      "frameHeight": 116,
+      "frameCount": 4,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 51,
+      "anchorY": 111
+    },
+    "run": {
+      "file": "/assets/ninja_pedro/run.png",
+      "frameWidth": 98,
+      "frameHeight": 116,
+      "frameCount": 4,
+      "fps": 16,
+      "loop": true,
+      "anchorX": 63,
+      "anchorY": 112
+    },
+    "jump": {
+      "file": "/assets/ninja_pedro/jump.png",
+      "frameWidth": 60,
+      "frameHeight": 108,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 27,
+      "anchorY": 102
+    },
+    "crouch": {
+      "file": "/assets/ninja_pedro/crouch.png",
+      "frameWidth": 68,
+      "frameHeight": 94,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 35,
+      "anchorY": 89
+    },
+    "standup": {
+      "file": "/assets/ninja_pedro/standup.png",
+      "frameWidth": 64,
+      "frameHeight": 98,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 33,
+      "anchorY": 93
+    },
+    "block": {
+      "file": "/assets/ninja_pedro/block.png",
+      "frameWidth": 58,
+      "frameHeight": 94,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": true,
+      "anchorX": 28,
+      "anchorY": 89
+    },
+    "roll": {
+      "file": "/assets/ninja_pedro/roll.png",
+      "frameWidth": 86,
+      "frameHeight": 98,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": true,
+      "anchorX": 57,
+      "anchorY": 86
+    },
+    "knockdown": {
+      "file": "/assets/ninja_pedro/knockdown.png",
+      "frameWidth": 118,
+      "frameHeight": 68,
+      "frameCount": 2,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 63,
+      "anchorY": 64
+    },
+    "getup": {
+      "file": "/assets/ninja_pedro/getup.png",
+      "frameWidth": 62,
+      "frameHeight": 76,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 35,
+      "anchorY": 71
+    },
+    "punch": {
+      "file": "/assets/ninja_pedro/punch.png",
+      "frameWidth": 86,
+      "frameHeight": 100,
+      "frameCount": 4,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 32,
+      "anchorY": 92
+    },
+    "kick": {
+      "file": "/assets/ninja_pedro/kick.png",
+      "frameWidth": 112,
+      "frameHeight": 106,
+      "frameCount": 3,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 64,
+      "anchorY": 99
+    },
+    "heavy_punch": {
+      "file": "/assets/ninja_pedro/heavy_punch.png",
+      "frameWidth": 78,
+      "frameHeight": 100,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 42,
+      "anchorY": 94
+    },
+    "heavy_kick": {
+      "file": "/assets/ninja_pedro/heavy_kick.png",
+      "frameWidth": 92,
+      "frameHeight": 104,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 31,
+      "anchorY": 97
+    },
+    "grab": {
+      "file": "/assets/ninja_pedro/grab.png",
+      "frameWidth": 82,
+      "frameHeight": 96,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 51,
+      "anchorY": 90
+    },
+    "throw": {
+      "file": "/assets/ninja_pedro/throw.png",
+      "frameWidth": 96,
+      "frameHeight": 100,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 63,
+      "anchorY": 94
+    },
+    "special_lamina": {
+      "file": "/assets/ninja_pedro/special_lamina.png",
+      "frameWidth": 192,
+      "frameHeight": 88,
+      "frameCount": 4,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 53,
+      "anchorY": 84
+    },
+    "special_teletransporte": {
+      "file": "/assets/ninja_pedro/special_teletransporte.png",
+      "frameWidth": 110,
+      "frameHeight": 102,
+      "frameCount": 5,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 54,
+      "anchorY": 95
+    },
+    "special_shurikens": {
+      "file": "/assets/ninja_pedro/special_shurikens.png",
+      "frameWidth": 112,
+      "frameHeight": 94,
+      "frameCount": 4,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 62,
+      "anchorY": 88
+    },
+    "special_corte": {
+      "file": "/assets/ninja_pedro/special_corte.png",
+      "frameWidth": 94,
+      "frameHeight": 110,
+      "frameCount": 10,
+      "fps": 16,
+      "loop": false,
+      "anchorX": 49,
+      "anchorY": 102
+    },
+    "finisher": {
+      "file": "/assets/ninja_pedro/finisher.png",
+      "frameWidth": 188,
+      "frameHeight": 156,
+      "frameCount": 6,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 82,
+      "anchorY": 148
+    },
+    "victory": {
+      "file": "/assets/ninja_pedro/victory.png",
+      "frameWidth": 186,
+      "frameHeight": 154,
+      "frameCount": 4,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 81,
+      "anchorY": 146
+    }
+  },
+  "fx": {
+    "fx_rajada": {
+      "file": "/assets/ninja_pedro/fx_rajada.png",
+      "width": 141,
+      "height": 96
+    },
+    "fx_portal": {
+      "file": "/assets/ninja_pedro/fx_portal.png",
+      "width": 63,
+      "height": 106
+    },
+    "fx_shuriken": {
+      "file": "/assets/ninja_pedro/fx_shuriken.png",
+      "width": 24,
+      "height": 25
+    },
+    "fx_sangue": {
+      "file": "/assets/ninja_pedro/fx_sangue.png",
+      "width": 100,
+      "height": 108
+    },
+    "fx_explosao": {
+      "file": "/assets/ninja_pedro/fx_explosao.png",
+      "width": 127,
+      "height": 98
+    },
+    "fx_fumaca": {
+      "file": "/assets/ninja_pedro/fx_fumaca.png",
+      "width": 104,
+      "height": 85
+    },
+    "fx_rastro": {
+      "file": "/assets/ninja_pedro/fx_rastro.png",
+      "width": 117,
+      "height": 72
+    },
+    "fx_aura": {
+      "file": "/assets/ninja_pedro/fx_aura.png",
+      "width": 100,
+      "height": 94
+    }
+  },
+  "portrait": "/assets/ninja_pedro/portrait.png"
+}

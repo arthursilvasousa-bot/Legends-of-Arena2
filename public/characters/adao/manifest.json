@@ -1,0 +1,250 @@
+{
+  "character": "adao",
+  "name": "Adão",
+  "title": "O Primeiro Homem",
+  "renderScale": 0.371,
+  "animations": {
+    "adao_idle": {
+      "key": "adao_idle",
+      "file": "/characters/adao/idle/strip.png",
+      "frameWidth": 102,
+      "frameHeight": 218,
+      "frameCount": 4,
+      "fps": 7,
+      "loop": true,
+      "anchorX": 51,
+      "anchorY": 214
+    },
+    "adao_walk": {
+      "key": "adao_walk",
+      "file": "/characters/adao/walk/strip.png",
+      "frameWidth": 134,
+      "frameHeight": 212,
+      "frameCount": 5,
+      "fps": 11,
+      "loop": true,
+      "anchorX": 67,
+      "anchorY": 208
+    },
+    "adao_run": {
+      "key": "adao_run",
+      "file": "/characters/adao/run/strip.png",
+      "frameWidth": 168,
+      "frameHeight": 192,
+      "frameCount": 4,
+      "fps": 14,
+      "loop": true,
+      "anchorX": 84,
+      "anchorY": 188
+    },
+    "adao_jump": {
+      "key": "adao_jump",
+      "file": "/characters/adao/jump/strip.png",
+      "frameWidth": 144,
+      "frameHeight": 176,
+      "frameCount": 3,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 72,
+      "anchorY": 172
+    },
+    "adao_guard": {
+      "key": "adao_guard",
+      "file": "/characters/adao/defense/guard_strip.png",
+      "frameWidth": 130,
+      "frameHeight": 202,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 65,
+      "anchorY": 198
+    },
+    "adao_crouch": {
+      "key": "adao_crouch",
+      "file": "/characters/adao/defense/crouch_strip.png",
+      "frameWidth": 96,
+      "frameHeight": 148,
+      "frameCount": 2,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 48,
+      "anchorY": 144
+    },
+    "adao_evade": {
+      "key": "adao_evade",
+      "file": "/characters/adao/defense/evade_strip.png",
+      "frameWidth": 178,
+      "frameHeight": 186,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 89,
+      "anchorY": 182
+    },
+    "adao_hit": {
+      "key": "adao_hit",
+      "file": "/characters/adao/defense/hit_strip.png",
+      "frameWidth": 108,
+      "frameHeight": 174,
+      "frameCount": 2,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 54,
+      "anchorY": 170
+    },
+    "adao_knockdown": {
+      "key": "adao_knockdown",
+      "file": "/characters/adao/defense/knockdown_strip.png",
+      "frameWidth": 212,
+      "frameHeight": 174,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 106,
+      "anchorY": 170
+    },
+    "adao_getup": {
+      "key": "adao_getup",
+      "file": "/characters/adao/defense/getup_strip.png",
+      "frameWidth": 128,
+      "frameHeight": 172,
+      "frameCount": 3,
+      "fps": 10,
+      "loop": false,
+      "anchorX": 64,
+      "anchorY": 168
+    },
+    "adao_punch": {
+      "key": "adao_punch",
+      "file": "/characters/adao/punch/punch_strip.png",
+      "frameWidth": 142,
+      "frameHeight": 198,
+      "frameCount": 5,
+      "fps": 16,
+      "loop": false,
+      "anchorX": 71,
+      "anchorY": 194
+    },
+    "adao_heavy_punch": {
+      "key": "adao_heavy_punch",
+      "file": "/characters/adao/punch/heavy_punch_strip.png",
+      "frameWidth": 148,
+      "frameHeight": 192,
+      "frameCount": 3,
+      "fps": 14,
+      "loop": false,
+      "anchorX": 74,
+      "anchorY": 188
+    },
+    "adao_kick": {
+      "key": "adao_kick",
+      "file": "/characters/adao/kick/kick_strip.png",
+      "frameWidth": 186,
+      "frameHeight": 202,
+      "frameCount": 5,
+      "fps": 16,
+      "loop": false,
+      "anchorX": 93,
+      "anchorY": 198
+    },
+    "adao_high_kick": {
+      "key": "adao_high_kick",
+      "file": "/characters/adao/kick/high_kick_strip.png",
+      "frameWidth": 150,
+      "frameHeight": 206,
+      "frameCount": 3,
+      "fps": 15,
+      "loop": false,
+      "anchorX": 75,
+      "anchorY": 202
+    },
+    "adao_low_kick": {
+      "key": "adao_low_kick",
+      "file": "/characters/adao/kick/low_kick_strip.png",
+      "frameWidth": 192,
+      "frameHeight": 176,
+      "frameCount": 2,
+      "fps": 14,
+      "loop": false,
+      "anchorX": 96,
+      "anchorY": 172
+    },
+    "adao_heavy_kick": {
+      "key": "adao_heavy_kick",
+      "file": "/characters/adao/kick/heavy_kick_strip.png",
+      "frameWidth": 144,
+      "frameHeight": 208,
+      "frameCount": 3,
+      "fps": 14,
+      "loop": false,
+      "anchorX": 72,
+      "anchorY": 204
+    },
+    "adao_special1": {
+      "key": "adao_special1",
+      "file": "/characters/adao/special_1_meteor_jabs/strip.png",
+      "frameWidth": 274,
+      "frameHeight": 238,
+      "frameCount": 11,
+      "fps": 20,
+      "loop": false,
+      "anchorX": 138,
+      "anchorY": 234
+    },
+    "adao_special2": {
+      "key": "adao_special2",
+      "file": "/characters/adao/special_2_divine_replication/strip.png",
+      "frameWidth": 452,
+      "frameHeight": 234,
+      "frameCount": 7,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 192,
+      "anchorY": 230
+    },
+    "adao_special3_charge": {
+      "key": "adao_special3_charge",
+      "file": "/characters/adao/special_3_time_transcending_fist/charge_strip.png",
+      "frameWidth": 324,
+      "frameHeight": 254,
+      "frameCount": 3,
+      "fps": 8,
+      "loop": false,
+      "anchorX": 150,
+      "anchorY": 250
+    },
+    "adao_special3_blast": {
+      "key": "adao_special3_blast",
+      "file": "/characters/adao/special_3_time_transcending_fist/blast_strip.png",
+      "frameWidth": 972,
+      "frameHeight": 264,
+      "frameCount": 1,
+      "fps": 12,
+      "loop": false,
+      "anchorX": 192,
+      "anchorY": 260
+    },
+    "adao_special4": {
+      "key": "adao_special4",
+      "file": "/characters/adao/special_4_divine_axe/strip.png",
+      "frameWidth": 324,
+      "frameHeight": 274,
+      "frameCount": 10,
+      "fps": 18,
+      "loop": false,
+      "anchorX": 131,
+      "anchorY": 270
+    },
+    "adao_victory": {
+      "key": "adao_victory",
+      "file": "/characters/adao/victory/strip.png",
+      "frameWidth": 278,
+      "frameHeight": 230,
+      "frameCount": 4,
+      "fps": 6,
+      "loop": false,
+      "anchorX": 163,
+      "anchorY": 226
+    }
+  }
+}
