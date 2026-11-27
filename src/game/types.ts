@@ -9,7 +9,8 @@ export type CharacterId =
   | 'tesla'
   | 'beelzebu'
   | 'dono'
-  | 'adao';
+  | 'adao'
+  | 'jack';
 
 export type ArenaId =
   | 'shadow_temple'
@@ -97,11 +98,15 @@ export interface MoveSpec {
     | 'barrage_rush'
     | 'divine_copy'
     | 'charged_ko_fist'
-    | 'axe_dash';
+    | 'axe_dash'
+    | 'jack_knives'
+    | 'soul_eye'
+    | 'scissor_spin'
+    | 'blood_wave';
   effectColor: string;
   secondaryColor: string;
   projectileSpeed?: number;
-  statusEffect?: 'slow' | 'root' | 'shield' | 'fury' | 'stun' | 'special_lock' | 'poison';
+  statusEffect?: 'slow' | 'root' | 'shield' | 'fury' | 'stun' | 'special_lock' | 'poison' | 'bleed_vuln';
 }
 
 export interface CharacterPalette {
@@ -220,6 +225,12 @@ export interface FighterState {
   adaoChargingSpecial3: boolean;
   adaoChargeTime: number;
   adaoChargeCooldownLock: boolean;
+  jackKnives: number;
+  jackKnifeTimer: number;
+  bleedTime: number;
+  bleedTickTimer: number;
+  bleedSourceSlot: 1 | 2 | null;
+  vulnerableTime: number;
   airAttackKind: 'punch' | 'kick';
   isLowBlock: boolean;
   comboCount: number;     // hits currently landed ON this fighter OR by this fighter
@@ -267,10 +278,12 @@ export interface Projectile {
     | 'electric_ball'
     | 'poison_lance'
     | 'homing_skull'
-    | 'pistol_bullet';
+    | 'pistol_bullet'
+    | 'jack_knife'
+    | 'blood_wave';
   color: string;
   secondaryColor: string;
-  statusEffect?: 'slow' | 'root' | 'stun' | 'special_lock' | 'poison';
+  statusEffect?: 'slow' | 'root' | 'stun' | 'special_lock' | 'poison' | 'bleed_vuln';
   life: number;
   maxLife: number;
   piercing?: boolean;
@@ -466,6 +479,15 @@ export type AdaoFxKind =
   | 'adao_copy_aura'
   | 'adao_time_fist_flash';
 
+export type JackFxKind =
+  | 'jack_knife_burst'
+  | 'jack_soul_eye'
+  | 'jack_giant_scissors'
+  | 'jack_scissor_spin'
+  | 'jack_blood_splatter'
+  | 'jack_blood_splash'
+  | 'jack_blood_eruption';
+
 export type VisualEffectKind =
   | NinjaFxKind
   | ElfFxKind
@@ -477,7 +499,8 @@ export type VisualEffectKind =
   | TeslaFxKind
   | BeelzebuFxKind
   | DonoFxKind
-  | AdaoFxKind;
+  | AdaoFxKind
+  | JackFxKind;
 
 export interface VisualEffect {
   id: number;

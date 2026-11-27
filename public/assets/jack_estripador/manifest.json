@@ -1,0 +1,494 @@
+{
+  "character": "jack",
+  "name": "Jack Estripador",
+  "title": "O Cavalheiro da Névoa",
+  "renderScale": 0.485,
+  "animations": {
+    "idle": {
+      "file": "/assets/jack_estripador/idle/strip.png",
+      "frames": [
+        "/assets/jack_estripador/idle/frame_001.png",
+        "/assets/jack_estripador/idle/frame_002.png",
+        "/assets/jack_estripador/idle/frame_003.png",
+        "/assets/jack_estripador/idle/frame_004.png"
+      ],
+      "frameWidth": 122,
+      "frameHeight": 166,
+      "frameCount": 4,
+      "fps": 9,
+      "duration": 0.444,
+      "loop": true,
+      "anchorX": 64,
+      "anchorY": 162,
+      "impactFrame": null
+    },
+    "walk": {
+      "file": "/assets/jack_estripador/walk/strip.png",
+      "frames": [
+        "/assets/jack_estripador/walk/frame_001.png",
+        "/assets/jack_estripador/walk/frame_002.png",
+        "/assets/jack_estripador/walk/frame_003.png",
+        "/assets/jack_estripador/walk/frame_004.png",
+        "/assets/jack_estripador/walk/frame_005.png",
+        "/assets/jack_estripador/walk/frame_006.png",
+        "/assets/jack_estripador/walk/frame_007.png",
+        "/assets/jack_estripador/walk/frame_008.png"
+      ],
+      "frameWidth": 126,
+      "frameHeight": 170,
+      "frameCount": 8,
+      "fps": 11,
+      "duration": 0.727,
+      "loop": true,
+      "anchorX": 64,
+      "anchorY": 166,
+      "impactFrame": null
+    },
+    "run": {
+      "file": "/assets/jack_estripador/run/strip.png",
+      "frames": [
+        "/assets/jack_estripador/run/frame_001.png",
+        "/assets/jack_estripador/run/frame_002.png",
+        "/assets/jack_estripador/run/frame_003.png",
+        "/assets/jack_estripador/run/frame_004.png",
+        "/assets/jack_estripador/run/frame_005.png",
+        "/assets/jack_estripador/run/frame_006.png",
+        "/assets/jack_estripador/run/frame_007.png"
+      ],
+      "frameWidth": 164,
+      "frameHeight": 164,
+      "frameCount": 7,
+      "fps": 12,
+      "duration": 0.583,
+      "loop": true,
+      "anchorX": 80,
+      "anchorY": 160,
+      "impactFrame": null
+    },
+    "jump": {
+      "file": "/assets/jack_estripador/jump/strip.png",
+      "frames": [
+        "/assets/jack_estripador/jump/frame_001.png",
+        "/assets/jack_estripador/jump/frame_002.png",
+        "/assets/jack_estripador/jump/frame_003.png",
+        "/assets/jack_estripador/jump/frame_004.png",
+        "/assets/jack_estripador/jump/frame_005.png",
+        "/assets/jack_estripador/jump/frame_006.png"
+      ],
+      "frameWidth": 146,
+      "frameHeight": 174,
+      "frameCount": 6,
+      "fps": 11,
+      "duration": 0.545,
+      "loop": false,
+      "anchorX": 67,
+      "anchorY": 170,
+      "impactFrame": null
+    },
+    "crouch": {
+      "file": "/assets/jack_estripador/crouch/strip.png",
+      "frames": [
+        "/assets/jack_estripador/crouch/frame_001.png",
+        "/assets/jack_estripador/crouch/frame_002.png",
+        "/assets/jack_estripador/crouch/frame_003.png"
+      ],
+      "frameWidth": 124,
+      "frameHeight": 132,
+      "frameCount": 3,
+      "fps": 11,
+      "duration": 0.273,
+      "loop": false,
+      "anchorX": 63,
+      "anchorY": 128,
+      "impactFrame": null
+    },
+    "standup": {
+      "file": "/assets/jack_estripador/standup/strip.png",
+      "frames": [
+        "/assets/jack_estripador/standup/frame_001.png",
+        "/assets/jack_estripador/standup/frame_002.png",
+        "/assets/jack_estripador/standup/frame_003.png"
+      ],
+      "frameWidth": 126,
+      "frameHeight": 170,
+      "frameCount": 3,
+      "fps": 12,
+      "duration": 0.25,
+      "loop": false,
+      "anchorX": 63,
+      "anchorY": 166,
+      "impactFrame": null
+    },
+    "block": {
+      "file": "/assets/jack_estripador/block/strip.png",
+      "frames": [
+        "/assets/jack_estripador/block/frame_001.png",
+        "/assets/jack_estripador/block/frame_002.png"
+      ],
+      "frameWidth": 130,
+      "frameHeight": 168,
+      "frameCount": 2,
+      "fps": 10,
+      "duration": 0.2,
+      "loop": false,
+      "anchorX": 59,
+      "anchorY": 164,
+      "impactFrame": null
+    },
+    "dodge": {
+      "file": "/assets/jack_estripador/dodge/strip.png",
+      "frames": [
+        "/assets/jack_estripador/dodge/frame_001.png",
+        "/assets/jack_estripador/dodge/frame_002.png"
+      ],
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frameCount": 2,
+      "fps": 12,
+      "duration": 0.167,
+      "loop": false,
+      "anchorX": 63,
+      "anchorY": 124,
+      "impactFrame": null
+    },
+    "hitstun": {
+      "file": "/assets/jack_estripador/hitstun/strip.png",
+      "frames": [
+        "/assets/jack_estripador/hitstun/frame_001.png",
+        "/assets/jack_estripador/hitstun/frame_002.png"
+      ],
+      "frameWidth": 168,
+      "frameHeight": 154,
+      "frameCount": 2,
+      "fps": 12,
+      "duration": 0.167,
+      "loop": false,
+      "anchorX": 70,
+      "anchorY": 150,
+      "impactFrame": null
+    },
+    "knockdown": {
+      "file": "/assets/jack_estripador/knockdown/strip.png",
+      "frames": [
+        "/assets/jack_estripador/knockdown/frame_001.png",
+        "/assets/jack_estripador/knockdown/frame_002.png",
+        "/assets/jack_estripador/knockdown/frame_003.png",
+        "/assets/jack_estripador/knockdown/frame_004.png",
+        "/assets/jack_estripador/knockdown/frame_005.png"
+      ],
+      "frameWidth": 198,
+      "frameHeight": 154,
+      "frameCount": 5,
+      "fps": 11,
+      "duration": 0.455,
+      "loop": false,
+      "anchorX": 97,
+      "anchorY": 150,
+      "impactFrame": null
+    },
+    "getup": {
+      "file": "/assets/jack_estripador/getup/strip.png",
+      "frames": [
+        "/assets/jack_estripador/getup/frame_001.png",
+        "/assets/jack_estripador/getup/frame_002.png",
+        "/assets/jack_estripador/getup/frame_003.png",
+        "/assets/jack_estripador/getup/frame_004.png",
+        "/assets/jack_estripador/getup/frame_005.png",
+        "/assets/jack_estripador/getup/frame_006.png"
+      ],
+      "frameWidth": 154,
+      "frameHeight": 166,
+      "frameCount": 6,
+      "fps": 12,
+      "duration": 0.5,
+      "loop": false,
+      "anchorX": 66,
+      "anchorY": 162,
+      "impactFrame": null
+    },
+    "victory": {
+      "file": "/assets/jack_estripador/victory/strip.png",
+      "frames": [
+        "/assets/jack_estripador/victory/frame_001.png",
+        "/assets/jack_estripador/victory/frame_002.png",
+        "/assets/jack_estripador/victory/frame_003.png",
+        "/assets/jack_estripador/victory/frame_004.png",
+        "/assets/jack_estripador/victory/frame_005.png",
+        "/assets/jack_estripador/victory/frame_006.png",
+        "/assets/jack_estripador/victory/frame_007.png"
+      ],
+      "frameWidth": 152,
+      "frameHeight": 174,
+      "frameCount": 7,
+      "fps": 10,
+      "duration": 0.7,
+      "loop": false,
+      "anchorX": 72,
+      "anchorY": 170,
+      "impactFrame": null
+    },
+    "punch": {
+      "file": "/assets/jack_estripador/punch/strip.png",
+      "frames": [
+        "/assets/jack_estripador/punch/frame_001.png",
+        "/assets/jack_estripador/punch/frame_002.png",
+        "/assets/jack_estripador/punch/frame_003.png",
+        "/assets/jack_estripador/punch/frame_004.png",
+        "/assets/jack_estripador/punch/frame_005.png",
+        "/assets/jack_estripador/punch/frame_006.png"
+      ],
+      "frameWidth": 248,
+      "frameHeight": 172,
+      "frameCount": 6,
+      "fps": 15,
+      "duration": 0.4,
+      "loop": false,
+      "anchorX": 100,
+      "anchorY": 168,
+      "impactFrame": 4
+    },
+    "heavy_punch": {
+      "file": "/assets/jack_estripador/heavy_punch/strip.png",
+      "frames": [
+        "/assets/jack_estripador/heavy_punch/frame_001.png",
+        "/assets/jack_estripador/heavy_punch/frame_002.png",
+        "/assets/jack_estripador/heavy_punch/frame_003.png",
+        "/assets/jack_estripador/heavy_punch/frame_004.png"
+      ],
+      "frameWidth": 248,
+      "frameHeight": 172,
+      "frameCount": 4,
+      "fps": 14,
+      "duration": 0.286,
+      "loop": false,
+      "anchorX": 100,
+      "anchorY": 168,
+      "impactFrame": 3
+    },
+    "kick": {
+      "file": "/assets/jack_estripador/kick/strip.png",
+      "frames": [
+        "/assets/jack_estripador/kick/frame_001.png",
+        "/assets/jack_estripador/kick/frame_002.png",
+        "/assets/jack_estripador/kick/frame_003.png",
+        "/assets/jack_estripador/kick/frame_004.png",
+        "/assets/jack_estripador/kick/frame_005.png",
+        "/assets/jack_estripador/kick/frame_006.png"
+      ],
+      "frameWidth": 224,
+      "frameHeight": 180,
+      "frameCount": 6,
+      "fps": 15,
+      "duration": 0.4,
+      "loop": false,
+      "anchorX": 70,
+      "anchorY": 176,
+      "impactFrame": 4
+    },
+    "heavy_kick": {
+      "file": "/assets/jack_estripador/heavy_kick/strip.png",
+      "frames": [
+        "/assets/jack_estripador/heavy_kick/frame_001.png",
+        "/assets/jack_estripador/heavy_kick/frame_002.png",
+        "/assets/jack_estripador/heavy_kick/frame_003.png",
+        "/assets/jack_estripador/heavy_kick/frame_004.png"
+      ],
+      "frameWidth": 224,
+      "frameHeight": 180,
+      "frameCount": 4,
+      "fps": 14,
+      "duration": 0.286,
+      "loop": false,
+      "anchorX": 70,
+      "anchorY": 176,
+      "impactFrame": 3
+    },
+    "crouch_kick": {
+      "file": "/assets/jack_estripador/crouch_kick/strip.png",
+      "frames": [
+        "/assets/jack_estripador/crouch_kick/frame_001.png",
+        "/assets/jack_estripador/crouch_kick/frame_002.png"
+      ],
+      "frameWidth": 150,
+      "frameHeight": 174,
+      "frameCount": 2,
+      "fps": 13,
+      "duration": 0.154,
+      "loop": false,
+      "anchorX": 63,
+      "anchorY": 170,
+      "impactFrame": 1
+    },
+    "combo": {
+      "file": "/assets/jack_estripador/combo/strip.png",
+      "frames": [
+        "/assets/jack_estripador/combo/frame_001.png",
+        "/assets/jack_estripador/combo/frame_002.png",
+        "/assets/jack_estripador/combo/frame_003.png",
+        "/assets/jack_estripador/combo/frame_004.png",
+        "/assets/jack_estripador/combo/frame_005.png"
+      ],
+      "frameWidth": 254,
+      "frameHeight": 180,
+      "frameCount": 5,
+      "fps": 15,
+      "duration": 0.333,
+      "loop": false,
+      "anchorX": 100,
+      "anchorY": 176,
+      "impactFrame": 4
+    },
+    "special1_knives": {
+      "file": "/assets/jack_estripador/special_1_knives/strip.png",
+      "frames": [
+        "/assets/jack_estripador/special_1_knives/frame_001.png",
+        "/assets/jack_estripador/special_1_knives/frame_002.png",
+        "/assets/jack_estripador/special_1_knives/frame_003.png",
+        "/assets/jack_estripador/special_1_knives/frame_004.png",
+        "/assets/jack_estripador/special_1_knives/frame_005.png",
+        "/assets/jack_estripador/special_1_knives/frame_006.png",
+        "/assets/jack_estripador/special_1_knives/frame_007.png"
+      ],
+      "frameWidth": 146,
+      "frameHeight": 168,
+      "frameCount": 7,
+      "fps": 18,
+      "duration": 0.389,
+      "loop": false,
+      "anchorX": 60,
+      "anchorY": 164,
+      "impactFrame": 4
+    },
+    "special2_soul_eye": {
+      "file": "/assets/jack_estripador/special_2_soul_eye/strip.png",
+      "frames": [
+        "/assets/jack_estripador/special_2_soul_eye/frame_001.png",
+        "/assets/jack_estripador/special_2_soul_eye/frame_002.png",
+        "/assets/jack_estripador/special_2_soul_eye/frame_003.png"
+      ],
+      "frameWidth": 122,
+      "frameHeight": 166,
+      "frameCount": 3,
+      "fps": 15,
+      "duration": 0.2,
+      "loop": false,
+      "anchorX": 64,
+      "anchorY": 162,
+      "impactFrame": 1
+    },
+    "special3_giant_scissors": {
+      "file": "/assets/jack_estripador/special_3_giant_scissors/strip.png",
+      "frames": [
+        "/assets/jack_estripador/special_3_giant_scissors/frame_001.png",
+        "/assets/jack_estripador/special_3_giant_scissors/frame_002.png",
+        "/assets/jack_estripador/special_3_giant_scissors/frame_003.png",
+        "/assets/jack_estripador/special_3_giant_scissors/frame_004.png",
+        "/assets/jack_estripador/special_3_giant_scissors/frame_005.png",
+        "/assets/jack_estripador/special_3_giant_scissors/frame_006.png",
+        "/assets/jack_estripador/special_3_giant_scissors/frame_007.png",
+        "/assets/jack_estripador/special_3_giant_scissors/frame_008.png",
+        "/assets/jack_estripador/special_3_giant_scissors/frame_009.png"
+      ],
+      "frameWidth": 184,
+      "frameHeight": 226,
+      "frameCount": 9,
+      "fps": 18,
+      "duration": 0.5,
+      "loop": false,
+      "anchorX": 92,
+      "anchorY": 222,
+      "impactFrame": 3
+    },
+    "special4_gods_hands": {
+      "file": "/assets/jack_estripador/special_4_gods_hands/strip.png",
+      "frames": [
+        "/assets/jack_estripador/special_4_gods_hands/frame_001.png",
+        "/assets/jack_estripador/special_4_gods_hands/frame_002.png",
+        "/assets/jack_estripador/special_4_gods_hands/frame_003.png",
+        "/assets/jack_estripador/special_4_gods_hands/frame_004.png",
+        "/assets/jack_estripador/special_4_gods_hands/frame_005.png",
+        "/assets/jack_estripador/special_4_gods_hands/frame_006.png"
+      ],
+      "frameWidth": 184,
+      "frameHeight": 224,
+      "frameCount": 6,
+      "fps": 16,
+      "duration": 0.375,
+      "loop": false,
+      "anchorX": 65,
+      "anchorY": 220,
+      "impactFrame": 4
+    }
+  },
+  "effects": {
+    "knife_single": {
+      "file": "/assets/jack_estripador/effects/knife_single.png",
+      "width": 118,
+      "height": 22
+    },
+    "knife_trail": {
+      "file": "/assets/jack_estripador/effects/knife_trail.png",
+      "width": 138,
+      "height": 33
+    },
+    "knife_burst": {
+      "file": "/assets/jack_estripador/effects/knife_burst.png",
+      "width": 191,
+      "height": 184
+    },
+    "soul_eye_strip": {
+      "file": "/assets/jack_estripador/effects/soul_eye/strip.png",
+      "frames": [
+        "/assets/jack_estripador/effects/soul_eye/frame_001.png",
+        "/assets/jack_estripador/effects/soul_eye/frame_002.png",
+        "/assets/jack_estripador/effects/soul_eye/frame_003.png",
+        "/assets/jack_estripador/effects/soul_eye/frame_004.png"
+      ],
+      "frameWidth": 210,
+      "frameHeight": 188,
+      "frameCount": 4,
+      "fps": 18,
+      "duration": 0.222,
+      "loop": false,
+      "anchorX": 105,
+      "anchorY": 184,
+      "impactFrame": 1
+    },
+    "giant_scissors_open": {
+      "file": "/assets/jack_estripador/effects/giant_scissors_open.png",
+      "width": 122,
+      "height": 152
+    },
+    "giant_scissors_closed": {
+      "file": "/assets/jack_estripador/effects/giant_scissors_closed.png",
+      "width": 161,
+      "height": 129
+    },
+    "scissor_spin_slash": {
+      "file": "/assets/jack_estripador/effects/scissor_spin_slash.png",
+      "width": 304,
+      "height": 117
+    },
+    "blood_splatter": {
+      "file": "/assets/jack_estripador/effects/blood_splatter.png",
+      "width": 131,
+      "height": 258
+    },
+    "blood_wave": {
+      "file": "/assets/jack_estripador/effects/blood_wave.png",
+      "width": 208,
+      "height": 222
+    },
+    "blood_splash": {
+      "file": "/assets/jack_estripador/effects/blood_splash.png",
+      "width": 175,
+      "height": 259
+    },
+    "blood_eruption": {
+      "file": "/assets/jack_estripador/effects/blood_eruption.png",
+      "width": 139,
+      "height": 251
+    }
+  },
+  "portrait": "/assets/jack_estripador/portrait/portrait.png"
+}
