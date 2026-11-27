@@ -184,15 +184,16 @@ function componentWithEdgesToImage(buf, compsInput, allCompsInRegion = null, min
   for (const ni of included) {
     const gx = ni % W;
     const gy = (ni / W) | 0;
+    const srcO = ni * 4;
+    const a = buf[srcO + 3];
+    if (extraFilter && !extraFilter(gx, gy, buf[srcO], buf[srcO + 1], buf[srcO + 2], a)) continue;
     const dx = gx - minX;
     const dy = gy - minY;
-    const srcO = ni * 4;
     const dstO = (dy * w + dx) * 4;
     rgba[dstO] = buf[srcO];
     rgba[dstO + 1] = buf[srcO + 1];
     rgba[dstO + 2] = buf[srcO + 2];
     // Boost nearly-opaque core pixels (248..254) cleanly to 255 for crisp edges
-    const a = buf[srcO + 3];
     rgba[dstO + 3] = a >= 244 ? 255 : a;
   }
   return { w, h, rgba, srcMinX: minX, srcMaxX: maxX, srcMinY: minY, srcMaxY: maxY };
@@ -393,33 +394,41 @@ const r1Comps = findCoreComponents(basicsBuf, [0, 40, 1535, 248], r1Excl, 130, 1
 const idleFrames = r1Comps.slice(0, 4).map((c) => componentWithEdgesToImage(basicsBuf, c, r1Comps));
 const walkFrames = r1Comps.slice(4, 9).map((c) => componentWithEdgesToImage(basicsBuf, c, r1Comps));
 
-// CORRER frames 0, 1 from r1Comps[9..10], and split r1Comps[11] diagonally between pose 2 & 3
+// CORRER frames 0, 1 from r1Comps[9..10], and split Pose 2 vs Pose 3 cleanly excluding Runner 1 pixels
 const runPose0 = componentWithEdgesToImage(basicsBuf, r1Comps[9], r1Comps);
 const runPose1 = componentWithEdgesToImage(basicsBuf, r1Comps[10], r1Comps);
-// Diagonal split from (1405, 110) to (1369, 246)
-const runDiagSplit = (x) => 1405 - ((x > 0 ? 0 : 0)); // helper below
+const runner1Pixels = new Set();
+for (const p of r1Comps[10].pixels) {
+  const gx = r1Comps[10].originX + (p % r1Comps[10].rw);
+  const gy = r1Comps[10].originY + ((p / r1Comps[10].rw) | 0);
+  runner1Pixels.add(gy * W + gx);
+}
+const isNearRunner1 = (x, y) => {
+  for (let dy = -2; dy <= 2; dy++) {
+    for (let dx = -2; dx <= 2; dx++) {
+      if (runner1Pixels.has((y + dy) * W + (x + dx))) return true;
+    }
+  }
+  return false;
+};
+const runSplitX = (y) => {
+  if (y <= 145) return 1400;
+  if (y <= 217) return 1396 - ((y - 145) / (217 - 145)) * (1396 - 1357.5);
+  return 1320;
+};
 const runPose2 = extractMaskedBox(
   basicsBuf,
-  [1255, 55, 1412, 248],
+  [1255, 55, 1402, 248],
   20,
   r1Excl,
-  (x, y) => {
-    // At y<=140, keep x <= 1406; between y=140..248 interpolate boundary 1406 -> 1365
-    if (y <= 140) return x <= 1406;
-    const splitX = 1406 - ((y - 140) / (248 - 140)) * (1406 - 1366);
-    return x <= splitX;
-  }
+  (x, y) => !isNearRunner1(x, y) && x <= runSplitX(y)
 );
 const runPose3 = extractMaskedBox(
   basicsBuf,
-  [1365, 55, 1505, 248],
+  [1320, 55, 1505, 248],
   20,
   r1Excl,
-  (x, y) => {
-    if (y <= 140) return x >= 1408;
-    const splitX = 1406 - ((y - 140) / (248 - 140)) * (1406 - 1366);
-    return x >= splitX;
-  }
+  (x, y) => x >= runSplitX(y) + 0.5
 );
 const runFrames = [runPose0, runPose1, runPose2, runPose3];
 
@@ -446,18 +455,43 @@ const r4Excl = [
 ];
 const r4Comps = findCoreComponents(basicsBuf, [0, 805, 1535, 1002], r4Excl, 130, 1, 250);
 const heavyPunchFrames = r4Comps.slice(0, 3).map((c) => componentWithEdgesToImage(basicsBuf, c, r4Comps));
-// r4Comps[3] = Chute Forte P0; r4Comps[4] has P1 + P2 touching at x=657; r4Comps[5..7] = Tombo; r4Comps[8..10] = Levantar
+// r4Comps[3] = Chute Forte P0; P1 kicking foot touches P2 forehead at x=674, y=840..855
 const heavyKickP0 = componentWithEdgesToImage(basicsBuf, r4Comps[3], r4Comps);
 const heavyKickP1 = extractMaskedBox(
   basicsBuf,
-  [552, 805, 657, 998],
+  [552, 805, 674, 998],
   20,
   r4Excl,
-  (x, y) => !(y < 835 && x > 645)
+  (x, y) => (y < 838 ? x <= 645 : y <= 857 ? x <= 674 : x <= 654)
 );
-const heavyKickP2 = extractMaskedBox(basicsBuf, [656, 805, 760, 998], 20, r4Excl);
+const heavyKickP2 = extractMaskedBox(
+  basicsBuf,
+  [675, 805, 760, 998],
+  20,
+  r4Excl,
+  (x) => x >= 675
+);
 const heavyKickFrames = [heavyKickP0, heavyKickP1, heavyKickP2];
-const knockdownFrames = r4Comps.slice(5, 8).map((c) => componentWithEdgesToImage(basicsBuf, c, r4Comps));
+// Clean enclosed neutral-white/cream background puddle trapped beneath Adão's lying pose on knockdown frame 2
+const knockdownFrames = r4Comps.slice(5, 8).map((c, idx) =>
+  componentWithEdgesToImage(
+    basicsBuf,
+    c,
+    r4Comps,
+    20,
+    8,
+    idx === 2
+      ? (x, y, r, g, b) => {
+          if (x >= 1066 && x <= 1126 && y >= 958 && y <= 976) {
+            const mx = Math.max(r, g, b);
+            const mn = Math.min(r, g, b);
+            if (mn >= 175 && r - b <= 28 && mx - mn <= 34) return false;
+          }
+          return true;
+        }
+      : null
+  )
+);
 const getupFrames = r4Comps.slice(8, 11).map((c) => componentWithEdgesToImage(basicsBuf, c, r4Comps));
 
 // Crouch frames: reuse getup kneel (levantar frame 0) + crouch transition (levantar frame 1 -> frame 0)
@@ -476,7 +510,7 @@ const S2_SCALE = 1.218;
 const S3_SCALE = 1.240;
 const S4_SCALE = 1.256;
 
-// Special 1 - Jabs de Meteoro (11 frames, y=49..213 — excludes all label/description text!)
+// Special 1 - Jabs de Meteoro (11 frames, y=49..213 — excludes all label/description text and adjacent frame fragments)
 const s1Excl = [[0, 0, 1535, 48]];
 const s1Frames = segmentSpecialRow(
   specialsBuf,
@@ -488,24 +522,23 @@ const s1Frames = segmentSpecialRow(
     [146, 284, null],
     [286, 425, null],
     [427, 535, null],
-    [558, 703, null],
-    [684, 818, (x, y) => x >= 703 || y > 135],
-    [802, 952, (x, y) => x <= 936 || y < 140],
-    [936, 1072, (x, y) => x >= 945 || y < 145],
-    [1072, 1244, (x, y) => x <= 1222 || y < 145],
-    [1218, 1392, (x, y) => x <= 1350 || y < 138],
-    [1349, 1524, (x, y) => x >= 1378 || y > 135],
+    [558, 704, (x, y) => (y < 150 ? x <= 704 : x <= 676)],
+    [680, 824, (x, y) => (y < 146 ? x >= 706 && x <= 824 : x >= 680 && x <= 798)],
+    [800, 986, (x, y) => (y < 146 ? x >= 826 : x >= 800) && (y <= 158 ? x <= 986 : x <= 934)],
+    [942, 1094, (x, y) => (y <= 158 ? x >= 988 : x >= 942) && (y <= 165 ? x <= 1094 : x <= 1058)],
+    [1068, 1266, (x, y) => (y <= 165 ? x >= 1096 : x >= 1068) && (y <= 145 ? x <= 1266 : y <= 175 ? x <= 1252 : x <= 1212)],
+    [1214, 1398, (x, y) => (y <= 145 ? x >= 1268 : y <= 175 ? x >= 1254 : x >= 1214) && (y <= 155 ? x <= 1398 : x <= 1344)],
+    [1346, 1524, (x, y) => (y <= 155 ? x >= 1400 : x >= 1346)],
   ],
   S1_SCALE,
   14
 );
 
-// Special 2 - Replicação Divina (7 frames, y=271..460)
-const s2Excl = [[0, 218, 1535, 270]];
-// Note: strip Japanese katakana ゴゴ at [273..305, 290..355] if desired? Actually katakana SFX fits S2 aesthetic, or keep clean red aura!
-// Let's check exact x slices in S2:
-// P0: 24..134, P1: 158..298, P2: 312..424, P3 (red aura): 430..642, P4 (ghost double): 644..818,
-// P5 (purple multi-shadow trio): 836..1165, P6 (multi-shadow dash strike): 1180..1524
+// Special 2 - Replicação Divina (7 frames, y=271..460, strip Japanese katakana ゴゴ)
+const s2Excl = [
+  [0, 218, 1535, 270],
+  [260, 290, 326, 360], // ゴゴ glyphs right of P1 and above P2 shoulder
+];
 const s2Frames = segmentSpecialRow(
   specialsBuf,
   271,
@@ -524,11 +557,11 @@ const s2Frames = segmentSpecialRow(
   14
 );
 
-// Special 3 - Time Transcending Fist (4 frames, y=514..718, exclude header/desc y<=512)
+// Special 3 - Time Transcending Fist (4 frames, y=514..718, exclude header/desc and all ゴゴ katakana)
 const s3Excl = [
   [0, 460, 1535, 513],
-  [418, 514, 468, 595], // detached katakana right of pose 1
-  [712, 514, 795, 572], // detached katakana between pose 2 & 3
+  [335, 514, 468, 608], // both ゴゴ katakana glyphs right of charge pose 1
+  [676, 514, 822, 581], // ゴゴ katakana glyphs right of charge pose 2 & top-left of blast
 ];
 const s3ChargeFrames = segmentSpecialRow(
   specialsBuf,
@@ -553,9 +586,8 @@ const s3BlastFrames = segmentSpecialRow(
   12
 );
 
-// Special 4 - Machado Divino (10 frames, y=772..985, exclude subtitle y<=770)
+// Special 4 - Machado Divino (10 frames, y=771..985, exclude subtitle and clean kick/leg overlaps)
 const s4Excl = [[0, 722, 1535, 770]];
-// Split S4 cleanly preserving overhanging kicking feet above adjacent poses:
 const s4Frames = segmentSpecialRow(
   specialsBuf,
   771,
@@ -564,14 +596,14 @@ const s4Frames = segmentSpecialRow(
   [
     [16, 130, null],
     [131, 272, null],
-    [273, 418, (x, y) => x <= 394 || y <= 845],
-    [394, 539, (x, y) => x >= 416 || y >= 845],
-    [540, 694, (x, y) => x <= 662 || y <= 858],
-    [662, 822, (x, y) => x >= 694 || y >= 862],
-    [814, 962, (x, y) => x <= 944 || y <= 852],
-    [944, 1110, (x, y) => (x >= 962 || y >= 852) && (x <= 1098 || y <= 840)],
-    [1095, 1314, (x, y) => x >= 1110 || y >= 845],
-    [1296, 1524, (x, y) => x >= 1314 || y >= 940],
+    [273, 400, (x, y) => (y <= 875 ? x <= 398 : x <= 375)],
+    [376, 540, (x, y) => (y <= 875 ? x >= 399 : x >= 376)],
+    [541, 696, (x, y) => (y <= 858 ? x <= 695 : x <= 642)],
+    [643, 825, (x, y) => (y <= 858 ? x >= 696 : x >= 643) && (y <= 880 ? x <= 824 : x <= 802)],
+    [803, 954, (x, y) => (y <= 880 ? x >= 826 : x >= 803) && (y <= 846 ? x <= 952 : x <= 936)],
+    [937, 1092, (x, y) => (y <= 846 ? x >= 954 : x >= 937) && (y <= 895 ? x <= 1091 : x <= 1075)],
+    [1076, 1313, (x, y) => (y <= 895 ? x >= 1092 : x >= 1076) && (y <= 920 ? x <= 1313 : x <= 1308)],
+    [1309, 1524, (x, y) => (y <= 920 ? x >= 1314 : x >= 1309)],
   ],
   S4_SCALE,
   14

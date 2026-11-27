@@ -858,8 +858,8 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   jaylon: {
     id: 'jaylon',
-    name: 'Jaylon',
-    playerName: 'Jaylon',
+    name: 'Zé da Pinga',
+    playerName: '',
     title: 'Velho Cachaceiro',
     style: 'Briga de boteco, arremesso de casco e baforada flamejante',
     description: 'Veterano incorrigível da folia com regata rosa e chinelo branco. Arremessa cascos atordoantes, espalha ressaca escorregadia, bebe para curar e cospe fogo de Malboro.',
@@ -930,7 +930,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
       special3: {
         id: 'special3',
         name: 'Gole na Cerveja',
-        description: 'Bebe cerveja, recupera 25% da vida máxima, gasta 25% da energia e atordoa Jaylon por 1s.',
+        description: 'Bebe cerveja, recupera 25% da vida máxima, gasta 25% da energia e atordoa Zé da Pinga por 1s.',
         startup: 0.22,
         active: 0.22,
         recovery: 0.14,
@@ -1333,7 +1333,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     description:
       'Um guerreiro de poder extraordinário, capaz de transcender os limites do tempo e reproduzir as habilidades de seus adversários.',
     finisherText: 'PUNHO DO TEMPO TRANSCENDENTE!',
-    victoryQuote: 'Mágica? Não, odeio essa palavra. Isso é ciência!',
+    victoryQuote: 'Existe algum homem que precise de um motivo para proteger os próprios filhos?',
     homeArena: 'celestial_cathedral',
     maxHp: 1000,
     walkSpeed: 138,

@@ -722,10 +722,24 @@ export function FightArena({
 
             {hud.roundBannerText && (
               <div
-                data-testid="round-banner"
-                className="font-arcade text-xl sm:text-4xl md:text-5xl text-amber-400 arcade-stroke tracking-wider text-center px-4"
+                className={`flex flex-col items-center gap-2 text-center px-4 ${
+                  hud.roundPhase === 'finisher' ? '-translate-y-8 sm:-translate-y-14' : ''
+                }`}
               >
-                {hud.roundBannerText}
+                <div
+                  data-testid="round-banner"
+                  className="font-arcade text-xl sm:text-4xl md:text-5xl text-amber-400 arcade-stroke tracking-wider"
+                >
+                  {hud.roundBannerText}
+                </div>
+                {hud.roundPhase === 'finisher' && winnerDef && (
+                  <p
+                    data-testid="finisher-victory-quote"
+                    className="animate-victory-quote max-w-xl bg-[#09070d]/85 border border-amber-400/70 px-3 py-1.5 text-xs sm:text-sm md:text-base text-amber-200 italic arcade-stroke-sm shadow-lg"
+                  >
+                    “{winnerDef.victoryQuote.replace(/^[“"]|[”"]$/g, '')}”
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -1212,8 +1226,11 @@ export function FightArena({
                     ? winnerDef.name
                     : `${winnerDef.name} (${winnerDef.playerName})`}
                 </h2>
-                <p className="text-xs sm:text-sm text-amber-300 italic mt-1">
-                  {winnerDef.victoryQuote}
+                <p
+                  data-testid="victory-quote"
+                  className="animate-victory-quote text-xs sm:text-sm text-amber-300 italic mt-1"
+                >
+                  “{winnerDef.victoryQuote.replace(/^[“"]|[”"]$/g, '')}”
                 </p>
                 <p className="text-xs text-slate-400 mt-1">
                   {winnerDef.finisherText}

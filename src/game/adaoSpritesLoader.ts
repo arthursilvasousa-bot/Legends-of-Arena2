@@ -1,6 +1,6 @@
 import { ADAO_SEQUENCES, AdaoSequenceKey } from './adaoAnimator';
 
-export const ADAO_PORTRAIT_FILE = '/characters/adao/portrait.png';
+export const ADAO_PORTRAIT_FILE = '/assets/aistudio/images_07c958f3.jpeg';
 
 class AdaoSpriteCache {
   private sequenceImages = new Map<AdaoSequenceKey, HTMLImageElement>();

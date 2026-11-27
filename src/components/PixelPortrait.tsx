@@ -140,7 +140,7 @@ export function PixelPortrait({
     return (
       <img
         src={JAYLON_PORTRAIT_FILE}
-        alt="Jaylon"
+        alt="Zé da Pinga"
         width={size}
         height={size}
         style={imgStyle}
@@ -196,7 +196,7 @@ export function PixelPortrait({
         width={size}
         height={size}
         style={imgStyle}
-        className={`block object-cover object-top pixelated bg-[#130a24] ${sizeClass} ${className}`}
+        className={`block object-cover object-top bg-[#1a0d12] ${sizeClass} ${className}`}
       />
     );
   }

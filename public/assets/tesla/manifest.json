@@ -10,27 +10,27 @@
     "tesla_idle": {
       "file": "/assets/tesla/animations/tesla_idle.png",
       "frameWidth": 106,
-      "frameHeight": 164,
+      "frameHeight": 168,
       "frameCount": 4,
       "fps": 8,
       "loop": true,
       "anchorX": 54,
-      "anchorY": 160
+      "anchorY": 164
     },
     "tesla_walk_forward": {
       "file": "/assets/tesla/animations/tesla_walk_forward.png",
-      "frameWidth": 118,
+      "frameWidth": 120,
       "frameHeight": 154,
       "frameCount": 6,
       "fps": 12,
       "loop": true,
-      "anchorX": 61,
-      "anchorY": 151
+      "anchorX": 64,
+      "anchorY": 150
     },
     "tesla_walk_backward": {
       "file": "/assets/tesla/animations/tesla_walk_backward.png",
       "frameWidth": 86,
-      "frameHeight": 152,
+      "frameHeight": 154,
       "frameCount": 6,
       "fps": 12,
       "loop": true,
@@ -39,93 +39,93 @@
     },
     "tesla_run_forward": {
       "file": "/assets/tesla/animations/tesla_run_forward.png",
-      "frameWidth": 116,
-      "frameHeight": 134,
+      "frameWidth": 142,
+      "frameHeight": 156,
       "frameCount": 7,
       "fps": 16,
       "loop": true,
-      "anchorX": 57,
-      "anchorY": 129
+      "anchorX": 79,
+      "anchorY": 152
     },
     "tesla_run_backward": {
       "file": "/assets/tesla/animations/tesla_run_backward.png",
-      "frameWidth": 94,
-      "frameHeight": 134,
+      "frameWidth": 102,
+      "frameHeight": 150,
       "frameCount": 5,
       "fps": 16,
       "loop": true,
-      "anchorX": 44,
-      "anchorY": 130
+      "anchorX": 55,
+      "anchorY": 145
     },
     "tesla_jump": {
       "file": "/assets/tesla/animations/tesla_jump.png",
-      "frameWidth": 112,
-      "frameHeight": 130,
+      "frameWidth": 116,
+      "frameHeight": 150,
       "frameCount": 5,
       "fps": 12,
       "loop": false,
-      "anchorX": 55,
-      "anchorY": 126
+      "anchorX": 58,
+      "anchorY": 146
     },
     "tesla_jab": {
       "file": "/assets/tesla/animations/tesla_jab.png",
       "frameWidth": 120,
-      "frameHeight": 128,
+      "frameHeight": 134,
       "frameCount": 4,
       "fps": 15,
       "loop": false,
       "anchorX": 59,
-      "anchorY": 124
+      "anchorY": 129
     },
     "tesla_heavy_punch": {
       "file": "/assets/tesla/animations/tesla_heavy_punch.png",
-      "frameWidth": 106,
-      "frameHeight": 128,
+      "frameWidth": 108,
+      "frameHeight": 138,
       "frameCount": 4,
       "fps": 12,
       "loop": false,
-      "anchorX": 63,
-      "anchorY": 124
+      "anchorX": 64,
+      "anchorY": 133
     },
     "tesla_front_kick": {
       "file": "/assets/tesla/animations/tesla_front_kick.png",
-      "frameWidth": 110,
-      "frameHeight": 130,
+      "frameWidth": 114,
+      "frameHeight": 136,
       "frameCount": 4,
       "fps": 15,
       "loop": false,
-      "anchorX": 37,
-      "anchorY": 126
+      "anchorX": 41,
+      "anchorY": 132
     },
     "tesla_high_kick": {
       "file": "/assets/tesla/animations/tesla_high_kick.png",
-      "frameWidth": 102,
-      "frameHeight": 130,
+      "frameWidth": 112,
+      "frameHeight": 148,
       "frameCount": 4,
       "fps": 15,
       "loop": false,
-      "anchorX": 33,
-      "anchorY": 126
+      "anchorX": 41,
+      "anchorY": 143
     },
     "tesla_block": {
       "file": "/assets/tesla/animations/tesla_block.png",
-      "frameWidth": 96,
-      "frameHeight": 136,
+      "frameWidth": 100,
+      "frameHeight": 148,
       "frameCount": 4,
       "fps": 10,
       "loop": true,
-      "anchorX": 52,
-      "anchorY": 133
+      "anchorX": 53,
+      "anchorY": 145
     },
     "tesla_low_block": {
       "file": "/assets/tesla/animations/tesla_low_block.png",
-      "frameWidth": 108,
-      "frameHeight": 116,
+      "frameWidth": 112,
+      "frameHeight": 128,
       "frameCount": 3,
       "fps": 10,
       "loop": true,
-      "anchorX": 67,
-      "anchorY": 113
+      "anchorX": 71,
+      "anchorY": 125
     },
     "tesla_crouch": {
       "file": "/assets/tesla/animations/tesla_crouch.png",
@@ -140,92 +140,92 @@
     "tesla_standup": {
       "file": "/assets/tesla/animations/tesla_standup.png",
       "frameWidth": 100,
-      "frameHeight": 162,
+      "frameHeight": 168,
       "frameCount": 3,
       "fps": 12,
       "loop": false,
       "anchorX": 50,
-      "anchorY": 159
+      "anchorY": 165
     },
     "tesla_roll": {
       "file": "/assets/tesla/animations/tesla_roll.png",
-      "frameWidth": 108,
-      "frameHeight": 114,
+      "frameWidth": 120,
+      "frameHeight": 140,
       "frameCount": 3,
       "fps": 15,
       "loop": true,
-      "anchorX": 50,
-      "anchorY": 110
+      "anchorX": 64,
+      "anchorY": 136
     },
     "tesla_damage": {
       "file": "/assets/tesla/animations/tesla_damage.png",
-      "frameWidth": 92,
-      "frameHeight": 146,
+      "frameWidth": 98,
+      "frameHeight": 148,
       "frameCount": 3,
       "fps": 12,
       "loop": false,
-      "anchorX": 48,
-      "anchorY": 142
+      "anchorX": 53,
+      "anchorY": 145
     },
     "tesla_knockdown": {
       "file": "/assets/tesla/animations/tesla_knockdown.png",
       "frameWidth": 100,
-      "frameHeight": 132,
+      "frameHeight": 134,
       "frameCount": 3,
       "fps": 10,
       "loop": false,
       "anchorX": 50,
-      "anchorY": 129
+      "anchorY": 130
     },
     "tesla_getup": {
       "file": "/assets/tesla/animations/tesla_getup.png",
       "frameWidth": 106,
-      "frameHeight": 162,
+      "frameHeight": 168,
       "frameCount": 3,
       "fps": 12,
       "loop": false,
       "anchorX": 58,
-      "anchorY": 159
+      "anchorY": 165
     },
     "tesla_grab": {
       "file": "/assets/tesla/animations/tesla_grab.png",
       "frameWidth": 120,
-      "frameHeight": 122,
+      "frameHeight": 132,
       "frameCount": 2,
       "fps": 12,
       "loop": false,
       "anchorX": 59,
-      "anchorY": 119
+      "anchorY": 128
     },
     "tesla_throw": {
       "file": "/assets/tesla/animations/tesla_throw.png",
-      "frameWidth": 86,
-      "frameHeight": 116,
+      "frameWidth": 92,
+      "frameHeight": 136,
       "frameCount": 2,
       "fps": 14,
       "loop": false,
-      "anchorX": 50,
-      "anchorY": 112
+      "anchorX": 52,
+      "anchorY": 132
     },
     "tesla_victory": {
       "file": "/assets/tesla/animations/tesla_victory.png",
-      "frameWidth": 140,
-      "frameHeight": 146,
+      "frameWidth": 142,
+      "frameHeight": 154,
       "frameCount": 4,
       "fps": 10,
       "loop": false,
       "anchorX": 67,
-      "anchorY": 143
+      "anchorY": 151
     },
     "tesla_guard_gold": {
       "file": "/assets/tesla/animations/tesla_guard_gold.png",
-      "frameWidth": 354,
-      "frameHeight": 432,
+      "frameWidth": 152,
+      "frameHeight": 172,
       "frameCount": 8,
       "fps": 10,
       "loop": true,
-      "anchorX": 152,
-      "anchorY": 428
+      "anchorX": 73,
+      "anchorY": 168
     },
     "tesla_special1_charge": {
       "file": "/assets/tesla/animations/tesla_special1_charge.png",
@@ -239,102 +239,102 @@
     },
     "tesla_special2_teleport": {
       "file": "/assets/tesla/animations/tesla_special2_teleport.png",
-      "frameWidth": 134,
+      "frameWidth": 146,
       "frameHeight": 152,
       "frameCount": 7,
       "fps": 18,
       "loop": false,
-      "anchorX": 72,
+      "anchorX": 88,
       "anchorY": 142
     },
     "tesla_special2_punch": {
       "file": "/assets/tesla/animations/tesla_special2_punch.png",
-      "frameWidth": 164,
-      "frameHeight": 156,
+      "frameWidth": 186,
+      "frameHeight": 164,
       "frameCount": 2,
       "fps": 18,
       "loop": false,
-      "anchorX": 102,
-      "anchorY": 151
+      "anchorX": 105,
+      "anchorY": 159
     },
     "tesla_special3_charge": {
       "file": "/assets/tesla/animations/tesla_special3_charge.png",
-      "frameWidth": 172,
-      "frameHeight": 156,
+      "frameWidth": 176,
+      "frameHeight": 158,
       "frameCount": 3,
       "fps": 15,
       "loop": false,
       "anchorX": 61,
-      "anchorY": 151
+      "anchorY": 153
     },
     "tesla_special4_charge": {
       "file": "/assets/tesla/animations/tesla_special4_charge.png",
-      "frameWidth": 122,
-      "frameHeight": 152,
+      "frameWidth": 128,
+      "frameHeight": 172,
       "frameCount": 5,
       "fps": 15,
       "loop": false,
-      "anchorX": 53,
-      "anchorY": 146
+      "anchorX": 57,
+      "anchorY": 151
     },
     "tesla_special4_end": {
       "file": "/assets/tesla/animations/tesla_special4_end.png",
-      "frameWidth": 88,
-      "frameHeight": 132,
+      "frameWidth": 84,
+      "frameHeight": 148,
       "frameCount": 1,
       "fps": 12,
       "loop": false,
-      "anchorX": 31,
-      "anchorY": 128
+      "anchorX": 29,
+      "anchorY": 129
     }
   },
   "fx": {
     "tesla_special1_projectile": {
       "file": "/assets/tesla/fx/tesla_special1_projectile.png",
-      "frameWidth": 162,
-      "frameHeight": 140,
+      "frameWidth": 156,
+      "frameHeight": 144,
       "frameCount": 4,
       "fps": 15
     },
     "tesla_special1_impact": {
       "file": "/assets/tesla/fx/tesla_special1_impact.png",
-      "frameWidth": 196,
-      "frameHeight": 170,
+      "frameWidth": 198,
+      "frameHeight": 162,
       "frameCount": 1,
       "fps": 15
     },
     "tesla_special2_knockback": {
       "file": "/assets/tesla/fx/tesla_special2_knockback.png",
-      "frameWidth": 272,
-      "frameHeight": 164,
+      "frameWidth": 256,
+      "frameHeight": 168,
       "frameCount": 1,
       "fps": 18
     },
     "tesla_special3_beam": {
       "file": "/assets/tesla/fx/tesla_special3_beam.png",
-      "frameWidth": 648,
-      "frameHeight": 158,
+      "frameWidth": 650,
+      "frameHeight": 154,
       "frameCount": 1,
       "fps": 15
     },
     "tesla_special3_reflection": {
       "file": "/assets/tesla/fx/tesla_special3_reflection.png",
-      "frameWidth": 96,
-      "frameHeight": 42,
+      "frameWidth": 80,
+      "frameHeight": 90,
       "frameCount": 1,
       "fps": 15
     },
     "tesla_special4_cage": {
       "file": "/assets/tesla/fx/tesla_special4_cage.png",
       "frameWidth": 238,
-      "frameHeight": 156,
+      "frameHeight": 150,
       "frameCount": 5,
       "fps": 15
     },
     "tesla_special4_electric_damage": {
       "file": "/assets/tesla/fx/tesla_special4_electric_damage.png",
-      "frameWidth": 52,
-      "frameHeight": 50,
+      "frameWidth": 28,
+      "frameHeight": 38,
       "frameCount": 1,
       "fps": 15
     }

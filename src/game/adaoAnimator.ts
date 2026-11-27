@@ -37,7 +37,7 @@ export interface AdaoSequenceMeta {
 }
 
 export const ADAO_RENDER_SCALE = 0.371;
-export const ADAO_VICTORY_QUOTE = 'Mágica? Não, odeio essa palavra. Isso é ciência!';
+export const ADAO_VICTORY_QUOTE = 'Existe algum homem que precise de um motivo para proteger os próprios filhos?';
 export const ADAO_SPECIAL3_CHARGE_DURATION = 2.0;
 
 export const ADAO_SEQUENCES: Record<AdaoSequenceKey, AdaoSequenceMeta> = {
@@ -67,12 +67,12 @@ export const ADAO_SEQUENCES: Record<AdaoSequenceKey, AdaoSequenceMeta> = {
     key: 'adao_run',
     file: '/characters/adao/run/strip.png',
     frameWidth: 168,
-    frameHeight: 192,
+    frameHeight: 200,
     frameCount: 4,
     fps: 14,
     loop: true,
     anchorX: 84,
-    anchorY: 188,
+    anchorY: 196,
   },
   adao_jump: {
     key: 'adao_jump',
@@ -220,12 +220,12 @@ export const ADAO_SEQUENCES: Record<AdaoSequenceKey, AdaoSequenceMeta> = {
   adao_special1: {
     key: 'adao_special1',
     file: '/characters/adao/special_1_meteor_jabs/strip.png',
-    frameWidth: 274,
+    frameWidth: 304,
     frameHeight: 238,
     frameCount: 11,
     fps: 20,
     loop: false,
-    anchorX: 138,
+    anchorX: 142,
     anchorY: 234,
   },
   adao_special2: {
@@ -242,7 +242,7 @@ export const ADAO_SEQUENCES: Record<AdaoSequenceKey, AdaoSequenceMeta> = {
   adao_special3_charge: {
     key: 'adao_special3_charge',
     file: '/characters/adao/special_3_time_transcending_fist/charge_strip.png',
-    frameWidth: 324,
+    frameWidth: 318,
     frameHeight: 254,
     frameCount: 3,
     fps: 8,
@@ -264,12 +264,12 @@ export const ADAO_SEQUENCES: Record<AdaoSequenceKey, AdaoSequenceMeta> = {
   adao_special4: {
     key: 'adao_special4',
     file: '/characters/adao/special_4_divine_axe/strip.png',
-    frameWidth: 324,
+    frameWidth: 320,
     frameHeight: 274,
     frameCount: 10,
     fps: 18,
     loop: false,
-    anchorX: 131,
+    anchorX: 116,
     anchorY: 270,
   },
   adao_victory: {

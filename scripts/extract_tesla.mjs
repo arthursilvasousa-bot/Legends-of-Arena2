@@ -42,8 +42,7 @@ function getPx(buf, x, y) {
 function isSheet1BgColor(r, g, b) {
   const maxc = Math.max(r, g, b);
   const minc = Math.min(r, g, b);
-  // Dark low-saturation backdrop or deep dark teal border noise
-  return maxc <= 36 && maxc - minc <= 18;
+  return maxc <= 34 && maxc - minc <= 18;
 }
 
 function extractSheet1Box(box, opts = {}) {
@@ -54,9 +53,8 @@ function extractSheet1Box(box, opts = {}) {
   const rgba = new Uint8ClampedArray(total * 4);
   const fg = new Uint8Array(total);
   const bgMask = new Uint8Array(total);
-  const { exclude = null, dropOrphans = 'bodyAndFx' } = opts;
+  const { exclude = null, dropOrphans = 'tiny' } = opts;
 
-  // Copy raw RGB inside box
   for (let y = y1; y <= y2; y++) {
     for (let x = x1; x <= x2; x++) {
       if (exclude && exclude(x, y)) continue;
@@ -139,16 +137,15 @@ function extractSheet1Box(box, opts = {}) {
         }
       }
     }
-    if (touchesBg && Math.max(r, g, b) < 58 && b >= r) {
-      // Soft faint edge halo into transparent cyan/slate
+    if (touchesBg && Math.max(r, g, b) < 52 && b >= r) {
       const lum = Math.max(r, g, b);
-      if (lum < 38) {
+      if (lum < 34) {
         rgba[i4] = 0;
         rgba[i4 + 1] = 0;
         rgba[i4 + 2] = 0;
         rgba[i4 + 3] = 0;
       } else {
-        rgba[i4 + 3] = Math.round(((lum - 38) / 20) * 210);
+        rgba[i4 + 3] = Math.round(((lum - 34) / 18) * 210);
       }
     }
     if (rgba[i4 + 3] > 24) fg[idx] = 1;
@@ -164,7 +161,7 @@ function extractTransparentBox(buf, box, opts = {}) {
   const total = bw * bh;
   const rgba = new Uint8ClampedArray(total * 4);
   const fg = new Uint8Array(total);
-  const { exclude = null, keepOnly = null, dropOrphans = 'bodyAndFx' } = opts;
+  const { exclude = null, keepOnly = null, alphaTransform = null, dropOrphans = 'tiny' } = opts;
 
   for (let y = y1; y <= y2; y++) {
     for (let x = x1; x <= x2; x++) {
@@ -173,11 +170,13 @@ function extractTransparentBox(buf, box, opts = {}) {
       if (a <= 20) continue;
       if (exclude && exclude(x, y, r, g, b, a)) continue;
       if (keepOnly && !keepOnly(x, y, r, g, b, a)) continue;
+      const na = alphaTransform ? alphaTransform(x, y, r, g, b, a) : a;
+      if (na <= 14) continue;
       const idx = (y - y1) * bw + (x - x1);
       rgba[idx * 4] = r;
       rgba[idx * 4 + 1] = g;
       rgba[idx * 4 + 2] = b;
-      rgba[idx * 4 + 3] = a;
+      rgba[idx * 4 + 3] = na;
       fg[idx] = 1;
     }
   }
@@ -237,10 +236,8 @@ function cleanupOrphans(frame, fg, mode) {
         rgba[idx * 4 + 2] = 0;
         rgba[idx * 4 + 3] = 0;
       }
-    } else if (mode === 'bodyAndFx') {
-      const touchesEdge = c.minLx <= 2 || c.maxLx >= bw - 3;
-      const isBottomCornerClip = c.minLy >= bh * 0.55 && (c.minLx <= 20 || c.maxLx >= bw - 21) && c.count < 600;
-      if (c.count < 14 || (touchesEdge && c.count < 280) || isBottomCornerClip) {
+    } else if (mode === 'tiny') {
+      if (c.count < 10) {
         for (const idx of c.pixels) {
           rgba[idx * 4] = 0;
           rgba[idx * 4 + 1] = 0;
@@ -251,6 +248,30 @@ function cleanupOrphans(frame, fg, mode) {
     }
   }
   return frame;
+}
+
+function resizeFrameRgba(frame, scale) {
+  const newW = Math.max(2, Math.round(frame.bw * scale));
+  const newH = Math.max(2, Math.round(frame.bh * scale));
+  const resized = execFileSync(
+    'convert',
+    [
+      '-size',
+      `${frame.bw}x${frame.bh}`,
+      '-depth',
+      '8',
+      'rgba:-',
+      '-filter',
+      'Lanczos',
+      '-resize',
+      `${newW}x${newH}!`,
+      '-depth',
+      '8',
+      'rgba:-',
+    ],
+    { input: Buffer.from(frame.rgba), maxBuffer: 32 * 1024 * 1024 }
+  );
+  return { bw: newW, bh: newH, rgba: new Uint8ClampedArray(resized) };
 }
 
 function tightBoundsFromRgba(frame, alphaThresh = 24) {
@@ -294,11 +315,9 @@ function bodyCenterX(f) {
     for (let y = y1; y <= y2; y++) {
       const idx = (y * bw + x) * 4;
       const r = rgba[idx];
-      const g = rgba[idx + 1];
       const b = rgba[idx + 2];
       const a = rgba[idx + 3];
       if (a > 160) {
-        // Weight gold/orange armor & warm skin higher than cyan outer lightning aura
         const isWarmBody = r > 120 && r >= b + 20;
         cw += isWarmBody ? 2.2 : 0.6;
       }
@@ -326,122 +345,180 @@ function bodyCenterX(f) {
   return den > 0 ? Math.round(num / den) : Math.round((x1 + x2) / 2);
 }
 
-// Key out dark blue/black dummy silhouettes inside electric FX (Special 1 impact, Special 2 blast, Special 4 cages)
-function isDarkDummyPixel(r, g, b) {
-  const maxc = Math.max(r, g, b);
-  return r < 45 && g < 85 && maxc < 145 && !(g > 110 && b > 160);
-}
-
 // =========================================================================
 // POSE DEFINITIONS across Sheet 1, Guard Sheet, & Specials Sheet
 // =========================================================================
 const POSES = {};
 
 // --- Sheet 1 Row 1: idle (4), walk_forward (6), walk_backward (6) ---
-const s1R1Idle = [[24, 46, 109, 204], [122, 46, 203, 204], [206, 46, 301, 204], [303, 46, 392, 204]];
+const s1R1Idle = [
+  [22, 40, 112, 205],
+  [118, 40, 205, 205],
+  [206, 40, 302, 205],
+  [303, 40, 394, 205],
+];
 s1R1Idle.forEach((box, i) => (POSES[`idle_${i}`] = { src: 's1', box }));
 
-const s1R1WalkF = [[468, 46, 553, 204], [554, 46, 642, 204], [645, 46, 728, 204], [734, 46, 826, 204], [835, 46, 908, 204], [910, 46, 1016, 204]];
+const s1R1WalkF = [
+  [462, 40, 553, 205],
+  [554, 40, 643, 205],
+  [645, 40, 731, 205],
+  [733, 40, 833, 205],
+  [834, 40, 910, 205],
+  [910, 40, 1020, 205],
+];
 s1R1WalkF.forEach((box, i) => (POSES[`walk_f_${i}`] = { src: 's1', box }));
 
-const s1R1WalkB = [[1058, 46, 1136, 204], [1144, 46, 1216, 204], [1220, 46, 1296, 204], [1300, 46, 1378, 204], [1380, 46, 1447, 204], [1448, 46, 1524, 204]];
+const s1R1WalkB = [
+  [1056, 40, 1138, 205],
+  [1142, 40, 1218, 205],
+  [1220, 40, 1296, 205],
+  [1298, 40, 1378, 205],
+  [1380, 40, 1447, 205],
+  [1448, 40, 1528, 205],
+];
 s1R1WalkB.forEach((box, i) => (POSES[`walk_b_${i}`] = { src: 's1', box }));
 
-// --- Sheet 1 Row 2 (y >= 246 skips blue header underline cleanly): run_forward (7), run_backward (5), jump (5) ---
-const s1R2RunF = [
-  [10, 246, 113, 392],
-  [120, 246, 215, 392],
-  [217, 246, 319, 392],
-  [321, 246, 417, 392],
-  [419, 246, 509, 392],
-  [511, 246, 603, 392],
-  [605, 246, 695, 392],
-];
-s1R2RunF.forEach((box, i) => (POSES[`run_f_${i}`] = { src: 's1', box, dropOrphans: 'single' }));
+// --- Sheet 1 Row 2: run_forward (7) with exact knee/toe overlap split, run_backward (5), jump (5) ---
+POSES.run_f_0 = {
+  src: 's1',
+  box: [8, 243, 108, 393],
+  dropOrphans: 'tiny',
+  exclude: (x, y) => x >= 94 && y >= 344,
+};
+POSES.run_f_1 = {
+  src: 's1',
+  box: [94, 243, 214, 393],
+  dropOrphans: 'tiny',
+  exclude: (x, y) => (x <= 108 && y <= 343) || (x >= 198 && y >= 344),
+};
+POSES.run_f_2 = {
+  src: 's1',
+  box: [198, 243, 313, 393],
+  dropOrphans: 'tiny',
+  exclude: (x, y) => (x <= 214 && y <= 343) || (x >= 288 && y >= 344),
+};
+POSES.run_f_3 = {
+  src: 's1',
+  box: [288, 243, 412, 393],
+  dropOrphans: 'tiny',
+  exclude: (x, y) => (x <= 312 && y <= 343) || (x >= 395 && y >= 344),
+};
+POSES.run_f_4 = {
+  src: 's1',
+  box: [395, 243, 509, 393],
+  dropOrphans: 'tiny',
+  exclude: (x, y) => (x <= 412 && y <= 343) || (x >= 488 && y >= 344),
+};
+POSES.run_f_5 = {
+  src: 's1',
+  box: [488, 243, 598, 393],
+  dropOrphans: 'tiny',
+  exclude: (x, y) => (x <= 509 && y <= 343) || (x >= 582 && y >= 344),
+};
+POSES.run_f_6 = {
+  src: 's1',
+  box: [582, 243, 694, 393],
+  dropOrphans: 'tiny',
+  exclude: (x, y) => x <= 598 && y <= 343,
+};
 
 const s1R2RunB = [
-  [706, 246, 795, 392],
-  [797, 246, 866, 392],
-  [868, 246, 937, 392],
-  [939, 246, 1007, 392],
-  [1008, 246, 1076, 392],
+  [702, 243, 795, 393],
+  [796, 243, 867, 393],
+  [868, 243, 938, 393],
+  [938, 243, 1008, 393],
+  [1008, 243, 1078, 393],
 ];
-s1R2RunB.forEach((box, i) => (POSES[`run_b_${i}`] = { src: 's1', box, dropOrphans: 'single' }));
+s1R2RunB.forEach((box, i) => (POSES[`run_b_${i}`] = { src: 's1', box, dropOrphans: 'tiny' }));
 
+// Note jump_2 reaches up to y=216!
 const s1R2Jump = [
-  [1082, 246, 1182, 392],
-  [1183, 246, 1270, 392],
-  [1272, 246, 1359, 392],
-  [1361, 246, 1435, 392],
-  [1448, 246, 1526, 392],
+  [1080, 243, 1182, 393],
+  [1182, 234, 1272, 370],
+  [1272, 216, 1364, 345],
+  [1360, 243, 1442, 393],
+  [1445, 243, 1528, 393],
 ];
-s1R2Jump.forEach((box, i) => (POSES[`jump_${i}`] = { src: 's1', box }));
+s1R2Jump.forEach((box, i) => (POSES[`jump_${i}`] = { src: 's1', box, dropOrphans: 'tiny' }));
 
-// --- Sheet 1 Row 3 (y >= 431 skips header underline): jab (4), heavy_punch (4), front_kick (4), high_kick (4) ---
-const s1R3Jab = [
-  [8, 431, 98, 566],
-  [100, 431, 197, 566],
-  [199, 431, 269, 566],
-  [269, 431, 383, 566],
-];
-s1R3Jab.forEach((box, i) => (POSES[`jab_${i}`] = { src: 's1', box }));
+// --- Sheet 1 Row 3 (y1=428 skips blue header underline cleanly, hkick_2/3 go higher to 412/410) ---
+POSES.jab_0 = { src: 's1', box: [8, 428, 98, 558] };
+POSES.jab_1 = { src: 's1', box: [100, 428, 195, 558] };
+POSES.jab_2 = {
+  src: 's1',
+  box: [198, 428, 273, 558],
+  exclude: (x, y) => x >= 267 && y >= 520,
+};
+POSES.jab_3 = {
+  src: 's1',
+  box: [267, 428, 384, 558],
+  exclude: (x, y) => x <= 274 && y <= 495,
+};
 
-const s1R3HeavyP = [
-  [386, 431, 485, 566],
-  [485, 431, 565, 566],
-  [565, 431, 653, 566],
-  [653, 431, 735, 566],
-];
-s1R3HeavyP.forEach((box, i) => (POSES[`hpunch_${i}`] = { src: 's1', box }));
+POSES.hpunch_0 = { src: 's1', box: [386, 428, 485, 558] };
+POSES.hpunch_1 = {
+  src: 's1',
+  box: [486, 428, 570, 558],
+  exclude: (x, y) => x >= 564 && y >= 520,
+};
+POSES.hpunch_2 = {
+  src: 's1',
+  box: [564, 428, 659, 558],
+  exclude: (x, y) => (x <= 571 && y <= 495) || (x >= 650 && y >= 520),
+};
+POSES.hpunch_3 = {
+  src: 's1',
+  box: [648, 428, 742, 558],
+  exclude: (x, y) => x <= 660 && y <= 495,
+};
 
 const s1R3FKick = [
-  [757, 431, 841, 566],
-  [844, 431, 933, 566],
-  [934, 431, 1011, 566],
-  [1018, 431, 1129, 566],
+  [758, 428, 848, 558],
+  [848, 428, 934, 558],
+  [935, 428, 1016, 558],
+  [1020, 428, 1132, 558],
 ];
 s1R3FKick.forEach((box, i) => (POSES[`fkick_${i}`] = { src: 's1', box }));
 
-const s1R3HKick = [
-  [1138, 431, 1229, 566],
-  [1229, 431, 1294, 566],
-  [1310, 431, 1409, 566],
-  [1411, 431, 1513, 566],
-];
-s1R3HKick.forEach((box, i) => (POSES[`hkick_${i}`] = { src: 's1', box }));
+POSES.hkick_0 = { src: 's1', box: [1144, 428, 1225, 558] };
+POSES.hkick_1 = { src: 's1', box: [1225, 428, 1300, 558] };
+POSES.hkick_2 = { src: 's1', box: [1308, 412, 1411, 558] };
+POSES.hkick_3 = { src: 's1', box: [1412, 410, 1520, 558] };
 
-// --- Sheet 1 Row 4 (y >= 596 skips header underline, y <= 737 trims divider line): block (4), low_block (3), crouch (3), victory (4) ---
+// --- Sheet 1 Row 4 (y1=597 skips header underline cleanly while keeping victory_0 raised hand at x<1094 & victory_3 at 588) ---
 const s1R4Block = [
-  [12, 596, 102, 737],
-  [112, 596, 195, 737],
-  [208, 596, 291, 737],
-  [300, 596, 386, 737],
+  [12, 597, 103, 738],
+  [111, 597, 196, 738],
+  [207, 597, 292, 738],
+  [300, 597, 388, 738],
 ];
 s1R4Block.forEach((box, i) => (POSES[`block_${i}`] = { src: 's1', box }));
 
 const s1R4LowBlock = [
-  [422, 596, 522, 742],
-  [526, 596, 613, 742],
-  [619, 596, 720, 742],
+  [420, 597, 523, 738],
+  [525, 597, 615, 738],
+  [619, 597, 722, 738],
 ];
 s1R4LowBlock.forEach((box, i) => (POSES[`lblock_${i}`] = { src: 's1', box }));
 
 const s1R4Crouch = [
-  [746, 596, 840, 742],
-  [854, 596, 947, 742],
-  [958, 596, 1047, 742],
+  [745, 597, 842, 738],
+  [853, 597, 949, 738],
+  [958, 597, 1049, 738],
 ];
 s1R4Crouch.forEach((box, i) => (POSES[`crouch_${i}`] = { src: 's1', box }));
 
-const s1R4Victory = [
-  [1068, 596, 1170, 742],
-  [1180, 596, 1258, 742],
-  [1276, 596, 1372, 742],
-  [1398, 596, 1512, 742],
-];
-s1R4Victory.forEach((box, i) => (POSES[`victory_${i}`] = { src: 's1', box }));
+POSES.victory_0 = {
+  src: 's1',
+  box: [1065, 588, 1172, 738],
+  exclude: (x, y) => x >= 1094 && y <= 597,
+};
+POSES.victory_1 = { src: 's1', box: [1178, 597, 1262, 738] };
+POSES.victory_2 = { src: 's1', box: [1274, 597, 1378, 738] };
+POSES.victory_3 = { src: 's1', box: [1394, 588, 1516, 738] };
 
-// --- Guard Sheet (Herói Dourado em Guarda Pixelada, 8 high-res frames scaled proportionally at runtime) ---
+// --- Guard Sheet (scaled to 0.385x so height matches ~164px standing sprite!) ---
 const guardBoxes = [
   [80, 28, 388, 458],
   [442, 28, 745, 458],
@@ -452,7 +529,7 @@ const guardBoxes = [
   [815, 540, 1121, 962],
   [1186, 534, 1492, 963],
 ];
-guardBoxes.forEach((box, i) => (POSES[`guard_${i}`] = { src: 'guard', box }));
+guardBoxes.forEach((box, i) => (POSES[`guard_${i}`] = { src: 'guard', box, scale: 0.385 }));
 
 // --- Sheet 3 (Specials) Character poses ---
 const sp1Char = [
@@ -461,44 +538,54 @@ const sp1Char = [
   [215, 44, 312, 208],
   [313, 44, 395, 208],
   [408, 44, 513, 208],
-  [513, 44, 619, 208],
-  [622, 44, 728, 208],
+  [514, 44, 619, 208],
+  [622, 44, 720, 208],
 ];
 sp1Char.forEach((box, i) => (POSES[`sp1_${i}`] = { src: 'sp', box }));
 
-const sp2Char = [
-  [10, 266, 106, 426],
-  [108, 266, 202, 426],
-  [203, 266, 300, 426],
-  [301, 266, 390, 426],
-  [391, 266, 514, 426],
-  [516, 266, 626, 426],
-  [626, 266, 730, 426],
-  [802, 266, 918, 426],
-  [918, 266, 1066, 426],
-];
-sp2Char.forEach((box, i) => (POSES[`sp2_${i}`] = { src: 'sp', box }));
+POSES.sp2_0 = { src: 'sp', box: [10, 266, 106, 426] };
+POSES.sp2_1 = { src: 'sp', box: [108, 266, 202, 426] };
+POSES.sp2_2 = { src: 'sp', box: [204, 266, 300, 426] };
+POSES.sp2_3 = { src: 'sp', box: [301, 266, 392, 426] };
+POSES.sp2_4 = { src: 'sp', box: [394, 256, 498, 426] };
+POSES.sp2_5 = { src: 'sp', box: [502, 256, 626, 426] };
+POSES.sp2_6 = { src: 'sp', box: [627, 264, 730, 426] };
+POSES.sp2_7 = { src: 'sp', box: [806, 264, 914, 426] };
+POSES.sp2_8 = {
+  src: 'sp',
+  box: [915, 252, 1094, 426],
+  alphaTransform: (x, y, r, g, b, a) => {
+    if (x > 1076) {
+      const t = Math.max(0, 1 - (x - 1076) / 18);
+      return Math.round(a * t);
+    }
+    return a;
+  },
+};
 
-const sp3Char = [
-  [10, 484, 108, 642],
-  [108, 484, 192, 642],
-  [192, 484, 336, 642],
-];
-sp3Char.forEach((box, i) => (POSES[`sp3_${i}`] = { src: 'sp', box }));
+POSES.sp3_0 = { src: 'sp', box: [10, 482, 108, 642] };
+POSES.sp3_1 = { src: 'sp', box: [108, 482, 192, 642] };
+POSES.sp3_2 = {
+  src: 'sp',
+  box: [192, 482, 344, 642],
+  alphaTransform: (x, y, r, g, b, a) => {
+    if (x > 320) {
+      const t = Math.max(0, 1 - (x - 320) / 24);
+      return Math.round(a * t);
+    }
+    return a;
+  },
+};
 
-const sp4Char = [
-  [14, 702, 102, 845],
-  [103, 702, 198, 845],
-  [10, 846, 114, 998],
-  [118, 846, 222, 998],
-  [222, 846, 332, 998],
-];
-sp4Char.forEach((box, i) => (POSES[`sp4_${i}`] = { src: 'sp', box }));
+POSES.sp4_0 = { src: 'sp', box: [14, 698, 102, 845] };
+POSES.sp4_1 = { src: 'sp', box: [103, 698, 185, 845] };
+POSES.sp4_2 = { src: 'sp', box: [10, 846, 114, 998] };
+POSES.sp4_3 = { src: 'sp', box: [118, 846, 224, 998] };
+POSES.sp4_4 = { src: 'sp', box: [224, 846, 334, 998] };
 POSES.sp4_end = {
   src: 'sp',
-  box: [1372, 846, 1468, 998],
-  // Exclude the "Gaiola Ativa" UI text card on the right cleanly
-  exclude: (x, y) => x >= 1428 && y <= 955,
+  box: [1372, 846, 1448, 998],
+  exclude: (x, y) => x >= 1422 && y <= 965,
 };
 
 // =========================================================================
@@ -507,13 +594,20 @@ POSES.sp4_end = {
 const poseCache = {};
 for (const [name, cfg] of Object.entries(POSES)) {
   let raw;
-  const dropMode = cfg.dropOrphans || 'bodyAndFx';
+  const dropMode = cfg.dropOrphans || 'tiny';
   if (cfg.src === 's1') {
     raw = extractSheet1Box(cfg.box, { exclude: cfg.exclude, dropOrphans: dropMode });
   } else if (cfg.src === 'guard') {
-    raw = extractTransparentBox(guardBuf, cfg.box, { exclude: cfg.exclude, dropOrphans: 'single' });
+    raw = extractTransparentBox(guardBuf, cfg.box, { exclude: cfg.exclude, dropOrphans: 'tiny' });
+    if (cfg.scale) {
+      raw = resizeFrameRgba(raw, cfg.scale);
+    }
   } else {
-    raw = extractTransparentBox(specialsBuf, cfg.box, { exclude: cfg.exclude, dropOrphans: dropMode });
+    raw = extractTransparentBox(specialsBuf, cfg.box, {
+      exclude: cfg.exclude,
+      alphaTransform: cfg.alphaTransform || null,
+      dropOrphans: dropMode,
+    });
   }
   const f = tightBoundsFromRgba(raw, 24);
   const fy = footBottomY(f);
@@ -634,64 +728,135 @@ for (const [seqName, seq] of Object.entries(SEQUENCES)) {
     anchorY,
   };
 
-  // Scale down guard_gold slightly in contact sheet so preview fits comfortably
-  if (seqName !== 'tesla_guard_gold') {
-    previewRows.push({ name: seqName, w: stripW, h: stripH, buf: out });
-  }
+  previewRows.push({ name: seqName, w: stripW, h: stripH, buf: out });
 }
 
 // =========================================================================
-// EXTRACT FX SPRITES & MULTI-FRAME FX STRIPS
+// CLEAN PROCEDURAL & EXTRACTED FX HELPERS (NO DUMMY SILHOUETTES OR HARD CUTS)
 // =========================================================================
+function isDummyOrNavyShadow(r, g, b) {
+  // Dark silhouette navy/black or dull grey-blue silhouette outline
+  const maxc = Math.max(r, g, b);
+  const sat = maxc - Math.min(r, g, b);
+  if (r < 95 && g < 135 && b < 225) return true;
+  if (maxc < 185 && sat < 45 && b >= r) return true;
+  return false;
+}
+
 const FX_SPECS = {
-  // SP1: 4-frame electric ball projectile strip
+  // SP1: 4-frame electric ball projectile strip (orb 4 trimmed before starburst)
   tesla_special1_projectile: {
     fps: 15,
     boxes: [
-      [764, 72, 854, 178],
-      [856, 72, 970, 178],
-      [971, 72, 1094, 178],
-      [1095, 58, 1252, 198],
+      [760, 70, 854, 180],
+      [856, 70, 970, 180],
+      [971, 70, 1094, 180],
+      [1095, 54, 1246, 200],
     ],
     dropOrphans: false,
   },
-  // SP1: Electric orb impact burst (outer starburst clean, inner dummy smoothly feathered out)
+  // SP1: Pure electric starburst impact (dummy silhouette 100% cleared & filled with bright cyan-white starburst!)
   tesla_special1_impact: {
     fps: 15,
-    boxes: [[1248, 44, 1438, 208]],
-    dropOrphans: false,
-    exclude: (x, y, r, g, b) => isDarkDummyPixel(r, g, b),
+    boxes: [[1248, 44, 1442, 204]],
+    dropOrphans: 'tiny',
     alphaTransform: (x, y, r, g, b, a) => {
-      const dx = (x - 1360) / 42;
-      const dy = (y - 156) / 52;
+      const dx = (x - 1356) / 52;
+      const dy = (y - 134) / 64;
       const d = Math.hypot(dx, dy);
-      if (d < 1.15 && !(r > 195 && g > 235)) {
-        const t = Math.max(0, Math.min(1, (d - 0.65) / 0.5));
+      if (d < 0.85) return 0;
+      if (d < 1.15) {
+        const t = (d - 0.85) / 0.3;
+        if (r < 120 && g < 185) return 0;
         return Math.round(a * t * t);
       }
-      return a;
+      if (r < 85 && g < 145) return 0;
+      let edgeFade = 1;
+      if (y < 54) edgeFade *= Math.max(0, (y - 44) / 10);
+      if (y > 194) edgeFade *= Math.max(0, (204 - y) / 10);
+      if (x > 1426) edgeFade *= Math.max(0, (1442 - x) / 16);
+      return Math.round(a * edgeFade);
+    },
+    postProcess: (frame) => {
+      const cx = frame.bw * 0.56;
+      const cy = frame.bh * 0.52;
+      for (let ly = 0; ly < frame.bh; ly++) {
+        for (let lx = 0; lx < frame.bw; lx++) {
+          const rx = lx - cx;
+          const ry = ly - cy;
+          const d = Math.hypot(rx / 72, ry / 74);
+          if (d >= 1) continue;
+          const angle = Math.atan2(ry, rx);
+          const spike = Math.pow(Math.abs(Math.cos(angle * 4)) * 0.5 + Math.abs(Math.sin(angle * 7 + 0.5)) * 0.5, 2.2);
+          const radial = Math.max(0, 1 - d) * (0.68 + 0.52 * spike);
+          const glow = Math.min(1, Math.pow(radial, 1.3));
+          const i = (ly * frame.bw + lx) * 4;
+          const addA = Math.round(glow * 245);
+          const oldA = frame.rgba[i + 3];
+          if (addA <= 8 && oldA <= 8) continue;
+          const na = Math.min(255, Math.max(oldA, addA));
+          const core = Math.max(0, 1 - d * 1.9);
+          // Keep RGB saturated bright cyan/white so edge fade never turns grey/muddy
+          const cr = Math.min(255, Math.round(90 + 165 * core));
+          const cg = Math.min(255, Math.round(215 + 40 * core));
+          const cb = 255;
+          if (oldA > 40) {
+            frame.rgba[i] = Math.max(frame.rgba[i], cr);
+            frame.rgba[i + 1] = Math.max(frame.rgba[i + 1], cg);
+            frame.rgba[i + 2] = Math.max(frame.rgba[i + 2], cb);
+          } else {
+            frame.rgba[i] = cr;
+            frame.rgba[i + 1] = cg;
+            frame.rgba[i + 2] = cb;
+          }
+          frame.rgba[i + 3] = na;
+        }
+      }
     },
   },
-  // SP2: Electric punch shockwave burst (pure shockwave without fist or dummy)
+  // SP2: Electric punch shockwave burst (without fist or dummy, smoothly feathered edges)
   tesla_special2_knockback: {
     fps: 18,
-    boxes: [[1074, 266, 1340, 426]],
+    boxes: [[1088, 254, 1345, 426]],
     dropOrphans: false,
-    exclude: (x, y, r, g, b) => x >= 1312 && isDarkDummyPixel(r, g, b),
+    alphaTransform: (x, y, r, g, b, a) => {
+      if (x >= 1285 && isDummyOrNavyShadow(r, g, b)) return 0;
+      if (r < 45 && g < 80 && b < 170) return 0;
+      let fade = 1;
+      if (x < 1106) fade *= Math.max(0, (x - 1088) / 18);
+      if (x > 1315) fade *= Math.max(0, (1345 - x) / 30);
+      if (y < 270) fade *= Math.max(0, (y - 254) / 16);
+      if (y > 410) fade *= Math.max(0, (426 - y) / 16);
+      return Math.round(a * fade);
+    },
   },
-  // SP3: Continuous electric beam (pure 642px continuous lightning without any arrow illustrations)
+  // SP3: Continuous electric beam (feathered top/bottom/sides so no flat cut lines)
   tesla_special3_beam: {
     fps: 15,
-    boxes: [[336, 485, 978, 640]],
+    boxes: [[332, 484, 978, 642]],
     dropOrphans: false,
+    alphaTransform: (x, y, r, g, b, a) => {
+      let fade = 1;
+      if (y < 496) fade *= Math.max(0, (y - 484) / 12);
+      if (y > 630) fade *= Math.max(0, (642 - y) / 12);
+      if (x < 344) fade *= Math.max(0, (x - 332) / 12);
+      if (x > 966) fade *= Math.max(0, (978 - x) / 12);
+      return Math.round(a * fade);
+    },
   },
-  // SP3: Clean reflection burst spark
+  // SP3: Radial electric reflection starburst (clean glowing spark from beam muzzle, not cropped arrow)
   tesla_special3_reflection: {
     fps: 15,
-    boxes: [[1142, 488, 1232, 524]],
+    boxes: [[274, 514, 356, 610]],
     dropOrphans: false,
+    alphaTransform: (x, y, r, g, b, a) => {
+      const d = Math.hypot((x - 315) / 40, (y - 562) / 46);
+      if (d >= 1) return 0;
+      const fade = Math.pow(1 - d, 0.85);
+      return Math.round(a * fade);
+    },
   },
-  // SP4: 5-frame square electric cage (hollow center with orange electric shock sparks preserved, smoothly feathered cavity)
+  // SP4: 5-frame hollow electric cage (100% dummy-free interior, pure electric cage + orange shock sparks!)
   tesla_special4_cage: {
     fps: 15,
     boxes: [
@@ -702,36 +867,46 @@ const FX_SPECS = {
       [1190, 846, 1370, 998],
     ],
     dropOrphans: false,
-    exclude: (x, y, r, g, b) => isDarkDummyPixel(r, g, b),
     alphaTransform: (x, y, r, g, b, a) => {
+      // Interior boxes [xMin, xMax, yMin, yMax] inside the cage bars where the dummy was drawn
       const interiors = [
-        [344, 576, 460, 926, 54, 46],
-        [584, 754, 673, 924, 38, 44],
-        [760, 970, 868, 926, 48, 44],
-        [974, 1188, 1082, 926, 50, 44],
-        [1190, 1370, 1280, 926, 44, 44],
+        [344, 576, 405, 514, 874, 972],
+        [584, 754, 626, 718, 874, 970],
+        [760, 970, 814, 922, 874, 972],
+        [974, 1188, 1024, 1138, 874, 972],
+        [1190, 1370, 1226, 1334, 874, 972],
       ];
-      for (const [bx1, bx2, cx, cy, rx, ry] of interiors) {
+      let edgeFade = 1;
+      if (y < 854) edgeFade *= Math.max(0, (y - 846) / 8);
+      if (y > 990) edgeFade *= Math.max(0, (998 - y) / 8);
+
+      for (const [bx1, bx2, ix1, ix2, iy1, iy2] of interiors) {
         if (x >= bx1 && x <= bx2) {
-          const d = Math.hypot((x - cx) / rx, (y - cy) / ry);
-          if (d < 1.15) {
-            const isWarmZap = r > 125 && r >= b * 0.72;
-            if (isWarmZap) return a;
-            const t = Math.max(0, Math.min(1, (d - 0.72) / 0.43));
-            return Math.round(a * t * t);
+          if (x >= ix1 && x <= ix2 && y >= iy1 && y <= iy2) {
+            // Preserve crisp warm orange/yellow shock sparks ONLY (strip white/grey dummy outlines)
+            const isWarmZap = r > 175 && r - b >= 24 && r >= g;
+            if (isWarmZap) return Math.round(a * edgeFade);
+            return 0;
           }
           break;
         }
       }
-      return a;
+      if (r < 60 && g < 110) return 0;
+      return Math.round(a * edgeFade);
     },
   },
-  // SP4: Electric shock zap spark (bright orange/cyan zap from cage shock frame)
+  // SP4: Pure orange/white electric shock zap spark (no grey dummy pixels!)
   tesla_special4_electric_damage: {
     fps: 15,
     boxes: [[1064, 924, 1110, 968]],
     dropOrphans: false,
-    exclude: (x, y, r, g, b) => isDarkDummyPixel(r, g, b),
+    alphaTransform: (x, y, r, g, b, a) => {
+      const isWarmZap = r > 170 && r > b + 20;
+      if (!isWarmZap) return 0;
+      const d = Math.hypot((x - 1087) / 21, (y - 946) / 20);
+      if (d >= 1) return 0;
+      return Math.round(a * Math.max(0, 1 - d * 0.3));
+    },
   },
 };
 
@@ -740,25 +915,10 @@ for (const [fxName, spec] of Object.entries(FX_SPECS)) {
   const frames = spec.boxes.map((b) => {
     const raw = extractTransparentBox(specialsBuf, b, {
       exclude: spec.exclude || null,
+      alphaTransform: spec.alphaTransform || null,
       dropOrphans: spec.dropOrphans ?? false,
     });
-    if (spec.alphaTransform) {
-      const [bx1, by1] = b;
-      for (let ly = 0; ly < raw.bh; ly++) {
-        for (let lx = 0; lx < raw.bw; lx++) {
-          const i = (ly * raw.bw + lx) * 4;
-          const a = raw.rgba[i + 3];
-          if (a === 0) continue;
-          const na = spec.alphaTransform(bx1 + lx, by1 + ly, raw.rgba[i], raw.rgba[i + 1], raw.rgba[i + 2], a);
-          raw.rgba[i + 3] = na;
-          if (na === 0) {
-            raw.rgba[i] = 0;
-            raw.rgba[i + 1] = 0;
-            raw.rgba[i + 2] = 0;
-          }
-        }
-      }
-    }
+    if (spec.postProcess) spec.postProcess(raw);
     return tightBoundsFromRgba(raw, 20);
   });
   const maxW = Math.max(...frames.map((f) => f.w));

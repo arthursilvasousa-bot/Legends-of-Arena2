@@ -30,7 +30,7 @@ test('moveGridCursor navigates rows and columns cleanly with wrapping', () => {
 
 test('formatFighterDisplayName avoids duplicate playerName and preserves distinct aliases', () => {
   assert.equal(formatFighterDisplayName({ name: 'Ninja', playerName: '' }), 'Ninja');
-  assert.equal(formatFighterDisplayName({ name: 'Jaylon', playerName: 'Jaylon' }), 'Jaylon');
+  assert.equal(formatFighterDisplayName({ name: 'Zé da Pinga', playerName: 'Zé da Pinga' }), 'Zé da Pinga');
   assert.equal(
     formatFighterDisplayName({ name: 'Dono do Morro', playerName: 'Chefe' }),
     'Dono do Morro (Chefe)'

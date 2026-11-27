@@ -79,7 +79,7 @@ test('all 25 Jaylon sequences, 8 FX sprites, and portrait exist on disk matching
 
 test('Jaylon roster definition has expected specials and action mappings', () => {
   const j = CHARACTERS.jaylon;
-  assert.equal(j.name, 'Jaylon');
+  assert.equal(j.name, 'Zé da Pinga');
   assert.equal(j.specials.special1.name, 'Lança Casco de Cerveja');
   assert.equal(j.specials.special2.name, 'Ressaca Braba');
   assert.equal(j.specials.special3.name, 'Gole na Cerveja');

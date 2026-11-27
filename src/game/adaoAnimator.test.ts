@@ -79,7 +79,7 @@ test('Adão roster identity, victory quote, and action mappings match specificat
   assert.equal(adao.playerName, '');
   assert.equal(adao.title, 'O Primeiro Homem');
   assert.equal(adao.victoryQuote, ADAO_VICTORY_QUOTE);
-  assert.equal(adao.victoryQuote, 'Mágica? Não, odeio essa palavra. Isso é ciência!');
+  assert.equal(adao.victoryQuote, 'Existe algum homem que precise de um motivo para proteger os próprios filhos?');
   assert.equal(JSON.stringify(adao).toLowerCase().includes('jaylon'), false);
 
   assert.equal(adao.specials.special1.name, 'Jabs de Meteoro');
