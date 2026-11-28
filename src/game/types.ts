@@ -16,13 +16,13 @@ export type ArenaId =
   | 'shadow_temple'
   | 'minotaur_coliseum'
   | 'elven_forest'
-  | 'realm_of_dead'
   | 'celestial_cathedral'
-  | 'troll_lands';
+  | 'troll_lands'
+  | 'favela_vida_loka';
 
 export type GameMode = 'arcade' | 'versus';
 export type Difficulty = 'easy' | 'normal' | 'hard';
-export type AppScreen = 'title' | 'select' | 'tournament' | 'playing' | 'paused' | 'gameover';
+export type AppScreen = 'title' | 'select' | 'stage_select' | 'tournament' | 'playing' | 'paused' | 'gameover';
 
 export type FighterAction =
   | 'idle'
@@ -107,6 +107,7 @@ export interface MoveSpec {
   secondaryColor: string;
   projectileSpeed?: number;
   statusEffect?: 'slow' | 'root' | 'shield' | 'fury' | 'stun' | 'special_lock' | 'poison' | 'bleed_vuln';
+  jackThrowCount?: number;
 }
 
 export interface CharacterPalette {

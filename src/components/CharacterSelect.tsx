@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Play, Sparkles, Swords, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Play, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { createEmptyInput, createMatchState, spawnBurst, spawnVisualEffect, stepMatch } from '../game/combatEngine';
 import { elfSpriteCache } from '../game/elfSpritesLoader';
 import { minotaurSpriteCache } from '../game/minotaurSpritesLoader';
@@ -12,16 +12,12 @@ import { teslaSpriteCache } from '../game/teslaSpritesLoader';
 import { beelzebuSpriteCache } from '../game/beelzebuSpritesLoader';
 import { donoSpriteCache } from '../game/donoSpritesLoader';
 import { adaoSpriteCache } from '../game/adaoSpritesLoader';
+import { jackSpriteCache } from '../game/jackSpritesLoader';
 import { renderArena } from '../game/pixelArenas';
 import { renderParticles, renderProjectilesAndHazards } from '../game/pixelEffects';
 import { renderFighter } from '../game/pixelSprites';
-import { ARENA_LIST, CHARACTERS, CHARACTER_LIST, GROUND_Y, STAGE_HEIGHT, STAGE_WIDTH } from '../game/roster';
-import {
-  SELECT_TIMER_SECONDS,
-  formatFighterDisplayName,
-  moveGridCursor,
-  stepSelectCountdown,
-} from '../game/selectHelpers';
+import { CHARACTERS, CHARACTER_LIST, GROUND_Y, STAGE_HEIGHT, STAGE_WIDTH } from '../game/roster';
+import { formatFighterDisplayName, moveGridCursor } from '../game/selectHelpers';
 import { ArenaId, CharacterId, Difficulty, GameMode, SpecialSlot } from '../game/types';
 import { PixelPortrait } from './PixelPortrait';
 
@@ -34,11 +30,10 @@ interface CharacterSelectProps {
   muted: boolean;
   onSelectP1: (id: CharacterId) => void;
   onSelectP2: (id: CharacterId) => void;
-  onSelectArena: (id: ArenaId) => void;
   onDifficultyChange?: (difficulty: Difficulty) => void;
   onToggleMute: () => void;
   onBack: () => void;
-  onFight: () => void;
+  onContinue: () => void;
   onPreviewSound: (kind: 'select' | 'special' | 'victory') => void;
 }
 
@@ -51,20 +46,18 @@ export function CharacterSelect({
   muted,
   onSelectP1,
   onSelectP2,
-  onSelectArena,
   onDifficultyChange,
   onToggleMute,
   onBack,
-  onFight,
+  onContinue,
   onPreviewSound,
 }: CharacterSelectProps) {
   const [activeSlot, setActiveSlot] = useState<1 | 2>(1);
   const [activeDemoLabel, setActiveDemoLabel] = useState<string>('');
-  const [secondsLeft, setSecondsLeft] = useState<number>(SELECT_TIMER_SECONDS);
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const autoConfirmedRef = useRef(false);
-  const onFightRef = useRef(onFight);
-  onFightRef.current = onFight;
+  const confirmedRef = useRef(false);
+  const onContinueRef = useRef(onContinue);
+  onContinueRef.current = onContinue;
 
   const inspectedCharId = activeSlot === 1 ? p1Char : p2Char;
   const inspectedChar = CHARACTERS[inspectedCharId];
@@ -80,26 +73,16 @@ export function CharacterSelect({
     fresh.f1.x = 148;
     fresh.f2.x = 332;
     fresh.f1.energy = 100;
+    if (fresh.f1.characterId === 'jack') {
+      fresh.f1.jackKnives = 5;
+    }
     demoStateRef.current = fresh;
     demoAdaoHoldTimerRef.current = 0;
     setActiveDemoLabel('');
   }, [inspectedCharId, oppCharId, arenaId]);
 
-  // 30-second countdown timer (auto-starts match when reaching 0)
   useEffect(() => {
-    autoConfirmedRef.current = false;
-    setSecondsLeft(SELECT_TIMER_SECONDS);
-    const id = window.setInterval(() => {
-      setSecondsLeft((prev) => {
-        const next = stepSelectCountdown(prev);
-        if (next.shouldAutoStart && !autoConfirmedRef.current) {
-          autoConfirmedRef.current = true;
-          window.setTimeout(() => onFightRef.current(), 0);
-        }
-        return next.nextSeconds;
-      });
-    }, 1000);
-    return () => window.clearInterval(id);
+    confirmedRef.current = false;
   }, []);
 
   // Keyboard navigation across the 5x2 metallic portrait grid + [Enter]/[K] confirm
@@ -131,9 +114,9 @@ export function CharacterSelect({
 
       if (e.code === 'KeyK' || (e.code === 'Enter' && !(document.activeElement instanceof HTMLButtonElement))) {
         e.preventDefault();
-        if (!autoConfirmedRef.current) {
-          autoConfirmedRef.current = true;
-          onFightRef.current();
+        if (!confirmedRef.current) {
+          confirmedRef.current = true;
+          onContinueRef.current();
         }
       }
     };
@@ -153,6 +136,7 @@ export function CharacterSelect({
     beelzebuSpriteCache.ensureLoaded();
     donoSpriteCache.ensureLoaded();
     adaoSpriteCache.ensureLoaded();
+    jackSpriteCache.ensureLoaded();
     let raf = 0;
     let last = performance.now();
     const start = last;
@@ -425,6 +409,32 @@ export function CharacterSelect({
               maxLife: 0.85,
             });
             spawnBurst(state, state.f1.x, GROUND_Y - 36, '#a855f7', '#fde047', 24, 140, 'spark');
+          } else if (state.f1.characterId === 'jack') {
+            spawnVisualEffect(state, {
+              kind: 'jack_soul_eye',
+              x: state.f1.x,
+              y: GROUND_Y - 46,
+              facing: state.f1.facing,
+              scale: 0.46,
+              maxLife: 1.25,
+            });
+            spawnVisualEffect(state, {
+              kind: 'jack_blood_splash',
+              x: state.f1.x + state.f1.facing * 14,
+              y: GROUND_Y - 34,
+              facing: state.f1.facing,
+              scale: 0.42,
+              maxLife: 0.9,
+            });
+            spawnVisualEffect(state, {
+              kind: 'jack_scissor_spin',
+              x: state.f1.x,
+              y: GROUND_Y - 34,
+              facing: state.f1.facing,
+              scale: 0.42,
+              maxLife: 0.8,
+            });
+            spawnBurst(state, state.f1.x, GROUND_Y - 36, '#dc2626', '#a855f7', 22, 135, 'spark');
           }
         } else {
           state.roundPhase = 'fighting';
@@ -436,6 +446,9 @@ export function CharacterSelect({
           state.f1.specialCooldowns = { special1: 0, special2: 0, special3: 0, special4: 0 };
           state.f1.cageUsesThisRound = 0;
           state.f2.specialLockTime = 0;
+          if (state.f1.characterId === 'jack') {
+            state.f1.jackKnives = Math.max(5, state.f1.jackKnives);
+          }
           demoAdaoHoldTimerRef.current = 0;
           if (pending === 'special1') p1In.special1Pressed = true;
           if (pending === 'special2') p1In.special2Pressed = true;
@@ -510,7 +523,6 @@ export function CharacterSelect({
   const p1Label = formatFighterDisplayName(p1Data);
   const p2Label = formatFighterDisplayName(p2Data);
   const p2Tag = mode === 'arcade' ? 'IA' : 'P2';
-  const currentArenaName = ARENA_LIST.find((a) => a.id === arenaId)?.name ?? '';
 
   return (
     <div className="relative w-full h-full bg-[#09070d] text-[#f5efe6] flex flex-col justify-between overflow-y-auto lg:overflow-hidden">
@@ -588,7 +600,7 @@ export function CharacterSelect({
           </div>
         </div>
 
-        {/* Center Beveled Metallic Header Plaque + Crimson Wing Streaks + 30s Timer */}
+        {/* Center Beveled Metallic Header Plaque + Crimson Wing Streaks */}
         <div className="-mt-7 sm:-mt-8 flex flex-col items-center pointer-events-none select-none">
           <div className="relative flex items-center justify-center">
             <div
@@ -612,21 +624,6 @@ export function CharacterSelect({
               aria-hidden="true"
               className="hidden sm:block w-24 md:w-36 h-[3px] bg-gradient-to-l from-transparent via-red-600 to-red-500 -ml-2"
             />
-          </div>
-
-          {/* 30-Second Countdown Timer */}
-          <div className="relative flex items-center justify-center gap-3 mt-1">
-            <span aria-hidden="true" className="w-12 sm:w-20 h-[2px] bg-gradient-to-r from-transparent to-red-500/90" />
-            <div
-              data-testid="select-timer"
-              aria-label={`Tempo restante: ${secondsLeft} segundos`}
-              className={`font-mono-num text-2xl sm:text-3xl font-black italic tracking-tight arcade-stroke leading-none ${
-                secondsLeft <= 9 ? 'text-red-400' : 'text-white'
-              }`}
-            >
-              {String(secondsLeft).padStart(2, '0')}
-            </div>
-            <span aria-hidden="true" className="w-12 sm:w-20 h-[2px] bg-gradient-to-l from-transparent to-red-500/90" />
           </div>
         </div>
       </header>
@@ -787,79 +784,48 @@ export function CharacterSelect({
           </div>
         </section>
 
-        {/* COMPACT ARENA SELECTOR & SPECIAL MOVE PREVIEW BAR */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 items-stretch">
-          {/* 6 Arenas (2 rows x 3 readable buttons) */}
-          <div className="lg:col-span-5 bg-[#110e19]/92 border border-[#4a5160] px-2.5 py-1.5 flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-1 text-[10px] font-bold uppercase tracking-wider">
-              <span className="text-slate-300">Arena do Combate</span>
-              <span className="text-amber-300 truncate">{currentArenaName}</span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
-              {ARENA_LIST.map((ar) => (
-                <button
-                  key={ar.id}
-                  type="button"
-                  onClick={() => {
-                    onPreviewSound('select');
-                    onSelectArena(ar.id);
-                  }}
-                  title={ar.name}
-                  className={`px-2 py-1 border text-[10px] font-bold truncate cursor-pointer transition-colors ${
-                    arenaId === ar.id
-                      ? 'bg-amber-500/20 border-amber-400 text-amber-200'
-                      : 'bg-[#1a1d26] border-[#3b4250] text-slate-300 hover:border-slate-300'
-                  }`}
-                >
-                  {ar.name}
-                </button>
-              ))}
-            </div>
+        {/* SPECIAL MOVE PREVIEW BAR (4 Specials + Finisher Demo) */}
+        <div className="w-full max-w-[780px] mx-auto bg-[#110e19]/92 border border-[#4a5160] px-3 py-2 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-1.5 text-[10px] font-bold uppercase tracking-wider">
+            <span className="text-slate-300">Golpes de {inspectedChar.name}</span>
+            <span className="text-red-300 truncate">Clique para testar na arena</span>
           </div>
-
-          {/* 4 Specials + Finisher Demo (2-line readable tiles) */}
-          <div className="lg:col-span-7 bg-[#110e19]/92 border border-[#4a5160] px-2.5 py-1.5 flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-1 text-[10px] font-bold uppercase tracking-wider">
-              <span className="text-slate-300">Golpes de {inspectedChar.name}</span>
-              <span className="text-red-300 truncate">Clique para testar na arena</span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1">
-              {(['special1', 'special2', 'special3', 'special4'] as SpecialSlot[]).map((slot, idx) => {
-                const sp = inspectedChar.specials[slot];
-                const keyBadge = ['1 / R', '2 / T', '3 / Y', '4 / U'][idx];
-                return (
-                  <button
-                    key={slot}
-                    type="button"
-                    onClick={() => triggerDemo(slot, sp.name)}
-                    title={`${sp.name}: ${sp.description}`}
-                    className="flex flex-col justify-between px-2 py-1 bg-[#1a1d26] border border-[#3b4250] hover:border-amber-400 text-left cursor-pointer transition-colors"
-                  >
-                    <span className="flex items-center justify-between gap-1 text-[9px] font-bold text-amber-400 leading-none">
-                      <span>{keyBadge}</span>
-                      <Play className="w-2.5 h-2.5 shrink-0" />
-                    </span>
-                    <span className="text-[10px] font-bold text-white leading-tight mt-0.5 line-clamp-2">
-                      {sp.name}
-                    </span>
-                  </button>
-                );
-              })}
-              <button
-                type="button"
-                onClick={() => triggerDemo('finisher', 'Finalização')}
-                title={inspectedChar.finisherText}
-                className="col-span-2 sm:col-span-1 flex flex-col justify-between px-2 py-1 bg-red-950/75 border border-red-500/70 hover:border-amber-400 text-left cursor-pointer transition-colors"
-              >
-                <span className="flex items-center justify-between gap-1 text-[9px] font-bold text-red-300 leading-none">
-                  <span>Vitória</span>
-                  <Sparkles className="w-2.5 h-2.5 shrink-0" />
-                </span>
-                <span className="text-[10px] font-bold text-amber-200 leading-tight mt-0.5">
-                  Finalização
-                </span>
-              </button>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+            {(['special1', 'special2', 'special3', 'special4'] as SpecialSlot[]).map((slot, idx) => {
+              const sp = inspectedChar.specials[slot];
+              const keyBadge = ['1 / R', '2 / T', '3 / Y', '4 / U'][idx];
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => triggerDemo(slot, sp.name)}
+                  title={`${sp.name}: ${sp.description}`}
+                  className="flex flex-col justify-between px-2.5 py-1.5 bg-[#1a1d26] border border-[#3b4250] hover:border-amber-400 text-left cursor-pointer transition-colors"
+                >
+                  <span className="flex items-center justify-between gap-1 text-[9px] font-bold text-amber-400 leading-none">
+                    <span>{keyBadge}</span>
+                    <Play className="w-2.5 h-2.5 shrink-0" />
+                  </span>
+                  <span className="text-[10px] font-bold text-white leading-tight mt-0.5 line-clamp-2">
+                    {sp.name}
+                  </span>
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => triggerDemo('finisher', 'Finalização')}
+              title={inspectedChar.finisherText}
+              className="col-span-2 sm:col-span-1 flex flex-col justify-between px-2.5 py-1.5 bg-red-950/75 border border-red-500/70 hover:border-amber-400 text-left cursor-pointer transition-colors"
+            >
+              <span className="flex items-center justify-between gap-1 text-[9px] font-bold text-red-300 leading-none">
+                <span>Vitória</span>
+                <Sparkles className="w-2.5 h-2.5 shrink-0" />
+              </span>
+              <span className="text-[10px] font-bold text-amber-200 leading-tight mt-0.5">
+                Finalização
+              </span>
+            </button>
           </div>
         </div>
       </div>
@@ -888,10 +854,9 @@ export function CharacterSelect({
             <span className="text-red-400">{p1Label}</span>
             {' '}vs{' '}
             <span className="text-amber-400">{p2Label}</span>
-            {' '}· {currentArenaName}
           </div>
 
-          {/* Right Confirm Cue + Primary Fight Button */}
+          {/* Right Confirm Cue + Primary Continue to Stage Select Button */}
           <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-center sm:justify-end">
             <span className="hidden md:flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-200">
               <kbd className="px-1.5 py-0.5 bg-[#0e1016] border border-[#6e7787] text-[10px] text-white">
@@ -901,12 +866,12 @@ export function CharacterSelect({
             </span>
             <button
               type="button"
-              data-fight-start="true"
-              onClick={onFight}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-2 bg-gradient-to-b from-red-500 via-red-600 to-red-800 hover:from-red-400 hover:to-red-700 active:translate-y-0.5 border-2 border-[#e2e8f0] text-white font-arcade text-sm font-bold uppercase tracking-wider shadow-[0_0_16px_rgba(220,38,38,0.65)] cursor-pointer transition-all"
+              data-stage-next="true"
+              onClick={onContinue}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-700 hover:from-amber-300 hover:to-amber-600 active:translate-y-0.5 border-2 border-[#fef3c7] text-[#09070d] font-arcade text-xs sm:text-sm font-bold uppercase tracking-wider shadow-[0_0_16px_rgba(245,158,11,0.55)] cursor-pointer transition-all"
             >
-              <Swords className="w-4 h-4" />
-              LUTAR!
+              ESCOLHER CENÁRIO
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>

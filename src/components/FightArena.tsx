@@ -19,7 +19,8 @@ import { beelzebuSpriteCache } from '../game/beelzebuSpritesLoader';
 import { donoSpriteCache } from '../game/donoSpritesLoader';
 import { ADAO_SPECIAL3_CHARGE_DURATION } from '../game/adaoAnimator';
 import { adaoSpriteCache } from '../game/adaoSpritesLoader';
-import { renderArena } from '../game/pixelArenas';
+import { jackSpriteCache } from '../game/jackSpritesLoader';
+import { ensureElvenForestAssets, ensureFavelaAssets, renderArena } from '../game/pixelArenas';
 import { renderParticles, renderProjectilesAndHazards } from '../game/pixelEffects';
 import { renderFighter } from '../game/pixelSprites';
 import { ARENAS, CHARACTERS, STAGE_HEIGHT, STAGE_WIDTH } from '../game/roster';
@@ -81,6 +82,12 @@ interface HudSnapshot {
   p2AdaoChargePct: number;
   p1AdaoCopiedName: string;
   p2AdaoCopiedName: string;
+  p1JackKnives: number;
+  p2JackKnives: number;
+  p1BleedSec: number;
+  p2BleedSec: number;
+  p1VulnerableSec: number;
+  p2VulnerableSec: number;
   winnerSlot: 1 | 2 | null;
   p1Damage: number;
   p2Damage: number;
@@ -168,6 +175,12 @@ export function FightArena({
     p2AdaoChargePct: 0,
     p1AdaoCopiedName: '',
     p2AdaoCopiedName: '',
+    p1JackKnives: 0,
+    p2JackKnives: 0,
+    p1BleedSec: 0,
+    p2BleedSec: 0,
+    p1VulnerableSec: 0,
+    p2VulnerableSec: 0,
     winnerSlot: null,
     p1Damage: 0,
     p2Damage: 0,
@@ -254,6 +267,12 @@ export function FightArena({
       p2AdaoChargePct: 0,
       p1AdaoCopiedName: '',
       p2AdaoCopiedName: '',
+      p1JackKnives: 0,
+      p2JackKnives: 0,
+      p1BleedSec: 0,
+      p2BleedSec: 0,
+      p1VulnerableSec: 0,
+      p2VulnerableSec: 0,
       winnerSlot: null,
       p1Damage: 0,
       p2Damage: 0,
@@ -265,8 +284,13 @@ export function FightArena({
 
   // Reset match if matchup/arena props change
   useEffect(() => {
+    if (arenaId === 'elven_forest') {
+      ensureElvenForestAssets();
+    } else if (arenaId === 'favela_vida_loka') {
+      ensureFavelaAssets();
+    }
     handleRestartMatch();
-  }, [handleRestartMatch]);
+  }, [arenaId, handleRestartMatch]);
 
   // Keyboard Listeners (isolated, clearing on blur)
   useEffect(() => {
@@ -358,6 +382,7 @@ export function FightArena({
     beelzebuSpriteCache.ensureLoaded();
     donoSpriteCache.ensureLoaded();
     adaoSpriteCache.ensureLoaded();
+    jackSpriteCache.ensureLoaded();
     let raf = 0;
     let last = performance.now();
     const start = last;
@@ -480,7 +505,13 @@ export function FightArena({
         state.f2.characterId === 'adao' && state.f2.adaoCopiedSpecial
           ? state.f2.adaoCopiedSpecial.name.replace('Replicação: ', '')
           : '';
-      const snapKey = `${state.roundNumber}|${state.roundPhase}|${state.roundBannerText}|${state.f1.roundsWon}|${state.f2.roundsWon}|${state.f1.comboCount}|${state.f2.comboCount}|${p1Can}|${p2Can}|${p1FurySec}|${p1FuryCooldownSec}|${p2FurySec}|${p2FuryCooldownSec}|${p1SpecialLockSec}|${p2SpecialLockSec}|${p1PoisonSec}|${p2PoisonSec}|${p1CageUses}|${p2CageUses}|${p1DonoAmmo}|${p2DonoAmmo}|${p1DonoReloadTenths}|${p2DonoReloadTenths}|${p1DonoCamoTenths}|${p2DonoCamoTenths}|${p1DonoSpeedTenths}|${p2DonoSpeedTenths}|${p1DonoEnergyFlash}|${p2DonoEnergyFlash}|${Math.floor(p1AdaoChargePct / 5)}|${Math.floor(p2AdaoChargePct / 5)}|${p1AdaoCopiedName}|${p2AdaoCopiedName}`;
+      const p1JackKnives = state.f1.characterId === 'jack' ? state.f1.jackKnives : 0;
+      const p2JackKnives = state.f2.characterId === 'jack' ? state.f2.jackKnives : 0;
+      const p1BleedSec = state.f1.bleedTime > 0 ? Math.ceil(state.f1.bleedTime) : 0;
+      const p2BleedSec = state.f2.bleedTime > 0 ? Math.ceil(state.f2.bleedTime) : 0;
+      const p1VulnerableSec = state.f1.vulnerableTime > 0 ? Math.ceil(state.f1.vulnerableTime) : 0;
+      const p2VulnerableSec = state.f2.vulnerableTime > 0 ? Math.ceil(state.f2.vulnerableTime) : 0;
+      const snapKey = `${state.roundNumber}|${state.roundPhase}|${state.roundBannerText}|${state.f1.roundsWon}|${state.f2.roundsWon}|${state.f1.comboCount}|${state.f2.comboCount}|${p1Can}|${p2Can}|${p1FurySec}|${p1FuryCooldownSec}|${p2FurySec}|${p2FuryCooldownSec}|${p1SpecialLockSec}|${p2SpecialLockSec}|${p1PoisonSec}|${p2PoisonSec}|${p1CageUses}|${p2CageUses}|${p1DonoAmmo}|${p2DonoAmmo}|${p1DonoReloadTenths}|${p2DonoReloadTenths}|${p1DonoCamoTenths}|${p2DonoCamoTenths}|${p1DonoSpeedTenths}|${p2DonoSpeedTenths}|${p1DonoEnergyFlash}|${p2DonoEnergyFlash}|${Math.floor(p1AdaoChargePct / 5)}|${Math.floor(p2AdaoChargePct / 5)}|${p1AdaoCopiedName}|${p2AdaoCopiedName}|${p1JackKnives}|${p2JackKnives}|${p1BleedSec}|${p2BleedSec}|${p1VulnerableSec}|${p2VulnerableSec}`;
       if (snapKey !== lastSnapshotKey) {
         lastSnapshotKey = snapKey;
         setHud({
@@ -517,6 +548,12 @@ export function FightArena({
           p2AdaoChargePct,
           p1AdaoCopiedName,
           p2AdaoCopiedName,
+          p1JackKnives,
+          p2JackKnives,
+          p1BleedSec,
+          p2BleedSec,
+          p1VulnerableSec,
+          p2VulnerableSec,
           winnerSlot: state.winnerSlot,
           p1Damage: state.f1.totalDamageDealt,
           p2Damage: state.f2.totalDamageDealt,
@@ -549,11 +586,12 @@ export function FightArena({
 
           ctx.save();
           ctx.translate(shakeX, shakeY);
+          const focusX = (state.f1.x + state.f2.x) * 0.5;
           const midOffset =
             state.roundPhase === 'finisher' || state.roundPhase === 'match_over'
               ? 0
-              : ((state.f1.x + state.f2.x) * 0.5 - STAGE_WIDTH * 0.5) * 0.35;
-          renderArena(ctx, state.arenaId, globalTime, midOffset);
+              : (focusX - STAGE_WIDTH * 0.5) * 0.35;
+          renderArena(ctx, state.arenaId, globalTime, midOffset, focusX);
           renderFighter(ctx, state.f1, globalTime);
           renderFighter(ctx, state.f2, globalTime);
           renderProjectilesAndHazards(ctx, state, globalTime);
@@ -751,7 +789,9 @@ export function FightArena({
               {( (p1Char === 'dono' && (hud.p1DonoCamoTenths > 0 || hud.p1DonoSpeedTenths > 0 || hud.p1DonoEnergyFlash)) ||
                 (p1Char === 'adao' && (hud.p1AdaoChargePct > 0 || Boolean(hud.p1AdaoCopiedName))) ||
                 hud.p1SpecialLockSec > 0 ||
-                hud.p1PoisonSec > 0 ) && (
+                hud.p1PoisonSec > 0 ||
+                hud.p1BleedSec > 0 ||
+                hud.p1VulnerableSec > 0 ) && (
                 <div className="hidden sm:flex flex-wrap items-center gap-1.5 text-[10px] font-bold arcade-stroke-sm mb-1">
                   {p1Char === 'adao' && hud.p1AdaoChargePct > 0 && (
                     <span data-testid="p1-adao-charge" className="whitespace-nowrap text-purple-200 bg-purple-950/95 px-1.5 py-0.5 border border-purple-400">
@@ -786,6 +826,16 @@ export function FightArena({
                   {hud.p1PoisonSec > 0 && (
                     <span data-testid="p1-poison-status" className="whitespace-nowrap text-fuchsia-200 bg-purple-950/90 px-1.5 py-0.5 border border-fuchsia-400">
                       ENVENENADO {hud.p1PoisonSec}s
+                    </span>
+                  )}
+                  {hud.p1BleedSec > 0 && (
+                    <span data-testid="p1-bleed-status" className="whitespace-nowrap text-red-200 bg-red-950/95 px-1.5 py-0.5 border border-red-400">
+                      SANGRAMENTO {hud.p1BleedSec}s
+                    </span>
+                  )}
+                  {hud.p1VulnerableSec > 0 && (
+                    <span data-testid="p1-vulnerable-status" className="whitespace-nowrap text-rose-200 bg-rose-950/95 px-1.5 py-0.5 border border-rose-400">
+                      VULNERÁVEL +30%
                     </span>
                   )}
                 </div>
@@ -823,6 +873,18 @@ export function FightArena({
                       {hud.p1DonoReloadTenths > 0
                         ? `· RECARGA ${(hud.p1DonoReloadTenths / 10).toFixed(1)}s`
                         : `· PISTOLA ${hud.p1DonoAmmo}/5`}
+                    </span>
+                  )}
+                  {p1Char === 'jack' && (
+                    <span
+                      data-testid="p1-jack-knives"
+                      className={
+                        hud.p1JackKnives >= 8
+                          ? 'text-red-300 bg-red-950/90 px-1 border border-red-400 font-bold'
+                          : 'text-purple-200 font-bold'
+                      }
+                    >
+                      · FACAS {hud.p1JackKnives}/8
                     </span>
                   )}
                 </span>
@@ -902,8 +964,20 @@ export function FightArena({
               {( (p2Char === 'dono' && (hud.p2DonoCamoTenths > 0 || hud.p2DonoSpeedTenths > 0 || hud.p2DonoEnergyFlash)) ||
                 (p2Char === 'adao' && (hud.p2AdaoChargePct > 0 || Boolean(hud.p2AdaoCopiedName))) ||
                 hud.p2SpecialLockSec > 0 ||
-                hud.p2PoisonSec > 0 ) && (
+                hud.p2PoisonSec > 0 ||
+                hud.p2BleedSec > 0 ||
+                hud.p2VulnerableSec > 0 ) && (
                 <div className="hidden sm:flex flex-wrap justify-end items-center gap-1.5 text-[10px] font-bold arcade-stroke-sm mb-1">
+                  {hud.p2VulnerableSec > 0 && (
+                    <span data-testid="p2-vulnerable-status" className="whitespace-nowrap text-rose-200 bg-rose-950/95 px-1.5 py-0.5 border border-rose-400">
+                      VULNERÁVEL +30%
+                    </span>
+                  )}
+                  {hud.p2BleedSec > 0 && (
+                    <span data-testid="p2-bleed-status" className="whitespace-nowrap text-red-200 bg-red-950/95 px-1.5 py-0.5 border border-red-400">
+                      SANGRAMENTO {hud.p2BleedSec}s
+                    </span>
+                  )}
                   {hud.p2PoisonSec > 0 && (
                     <span data-testid="p2-poison-status" className="whitespace-nowrap text-fuchsia-200 bg-purple-950/90 px-1.5 py-0.5 border border-fuchsia-400">
                       ENVENENADO {hud.p2PoisonSec}s
@@ -969,6 +1043,18 @@ export function FightArena({
                       {hud.p2DonoReloadTenths > 0
                         ? `RECARGA ${(hud.p2DonoReloadTenths / 10).toFixed(1)}s ·`
                         : `PISTOLA ${hud.p2DonoAmmo}/5 ·`}
+                    </span>
+                  )}
+                  {p2Char === 'jack' && (
+                    <span
+                      data-testid="p2-jack-knives"
+                      className={
+                        hud.p2JackKnives >= 8
+                          ? 'text-red-300 bg-red-950/90 px-1 border border-red-400 font-bold'
+                          : 'text-purple-200 font-bold'
+                      }
+                    >
+                      FACAS {hud.p2JackKnives}/8 ·
                     </span>
                   )}
                   {p2Char === 'troll' && hud.p2FurySec <= 0 && hud.p2FuryCooldownSec > 0 && (
@@ -1091,7 +1177,8 @@ export function FightArena({
               const isLocked = hud.p1SpecialLockSec > 0;
               const isCageExhausted = p1Char === 'tesla' && slot === 'special4' && hud.p1CageUses >= 2;
               const isDonoReloading = p1Char === 'dono' && slot === 'special1' && (hud.p1DonoReloadTenths > 0 || hud.p1DonoAmmo <= 0);
-              const canCast = hud.p1Energy >= sp.energyCost && !isLocked && !isCageExhausted && !isDonoReloading;
+              const isJackNoKnives = p1Char === 'jack' && slot === 'special1' && hud.p1JackKnives <= 0;
+              const canCast = hud.p1Energy >= sp.energyCost && !isLocked && !isCageExhausted && !isDonoReloading && !isJackNoKnives;
               const pressedKey =
                 slot === 'special1'
                   ? 'special1Pressed'
@@ -1108,6 +1195,8 @@ export function FightArena({
                 ? hud.p1DonoReloadTenths > 0
                   ? ` ⏳${(hud.p1DonoReloadTenths / 10).toFixed(1)}`
                   : ` (${hud.p1DonoAmmo}/5)`
+                : p1Char === 'jack' && slot === 'special1'
+                ? ` (${hud.p1JackKnives}/8)`
                 : '';
               return (
                 <button

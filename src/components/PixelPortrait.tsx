@@ -10,6 +10,7 @@ import { TESLA_PORTRAIT_FILE } from '../game/teslaSpritesLoader';
 import { BEELZEBU_PORTRAIT_FILE } from '../game/beelzebuSpritesLoader';
 import { DONO_PORTRAIT_FILE } from '../game/donoSpritesLoader';
 import { ADAO_PORTRAIT_FILE } from '../game/adaoSpritesLoader';
+import { JACK_PORTRAIT_FILE } from '../game/jackSpritesLoader';
 import { renderPortrait } from '../game/pixelSprites';
 import { CharacterId } from '../game/types';
 
@@ -42,7 +43,8 @@ export function PixelPortrait({
       characterId === 'tesla' ||
       characterId === 'beelzebu' ||
       characterId === 'dono' ||
-      characterId === 'adao'
+      characterId === 'adao' ||
+      characterId === 'jack'
     ) {
       return;
     }
@@ -197,6 +199,19 @@ export function PixelPortrait({
         height={size}
         style={imgStyle}
         className={`block object-cover object-top bg-[#1a0d12] ${sizeClass} ${className}`}
+      />
+    );
+  }
+
+  if (characterId === 'jack') {
+    return (
+      <img
+        src={JACK_PORTRAIT_FILE}
+        alt="Jack Estripador"
+        width={size}
+        height={size}
+        style={imgStyle}
+        className={`block object-cover object-top bg-[#160a14] ${sizeClass} ${className}`}
       />
     );
   }

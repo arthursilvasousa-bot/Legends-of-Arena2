@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { CharacterSelect } from './components/CharacterSelect';
 import { FightArena } from './components/FightArena';
+import { StageSelect } from './components/StageSelect';
 import { TitleScreen } from './components/TitleScreen';
 import { TournamentScreen } from './components/TournamentScreen';
 import { soundEngine } from './game/audio';
@@ -73,6 +74,15 @@ export default function App() {
     soundEngine.unlock();
     soundEngine.startBgm('menu');
     setScreen('tournament');
+  }, []);
+
+  const handleGoToStageSelect = useCallback(() => {
+    soundEngine.unlock();
+    soundEngine.playUiConfirm();
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    setScreen('stage_select');
   }, []);
 
   const handleStartFight = useCallback(() => {
@@ -225,10 +235,28 @@ export default function App() {
             }
           }}
           onSelectP2={(id) => setP2Char(id)}
-          onSelectArena={(id) => setArenaId(id)}
           onDifficultyChange={(d) => setDifficulty(d)}
           onToggleMute={handleToggleMute}
           onBack={handleGoToTitle}
+          onContinue={handleGoToStageSelect}
+          onPreviewSound={handlePreviewSound}
+        />
+      )}
+
+      {screen === 'stage_select' && (
+        <StageSelect
+          mode={mode}
+          difficulty={difficulty}
+          p1Char={p1Char}
+          p2Char={p2Char}
+          arenaId={arenaId}
+          muted={muted}
+          onSelectArena={(id) => setArenaId(id)}
+          onToggleMute={handleToggleMute}
+          onBack={() => {
+            soundEngine.playUiBack();
+            setScreen('select');
+          }}
           onFight={handleStartFight}
           onPreviewSound={handlePreviewSound}
         />

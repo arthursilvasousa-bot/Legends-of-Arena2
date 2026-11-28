@@ -33,6 +33,14 @@ import {
   DONO_RELOAD_DURATION,
 } from './donoAnimator';
 import { ADAO_SPECIAL3_CHARGE_DURATION } from './adaoAnimator';
+import {
+  JACK_BLEED_DURATION,
+  JACK_KNIFE_RECHARGE_SECONDS,
+  JACK_MAX_KNIVES,
+  JACK_SOUL_EYE_SLOW_DURATION,
+  JACK_VULNERABLE_DAMAGE_MULTIPLIER,
+  JACK_VULNERABLE_DURATION,
+} from './jackAnimator';
 
 const PARTICLE_POOL_SIZE = 180;
 
@@ -112,6 +120,12 @@ export function createFighter(slot: 1 | 2, characterId: CharacterId, roundsWon =
     adaoChargingSpecial3: false,
     adaoChargeTime: 0,
     adaoChargeCooldownLock: false,
+    jackKnives: 0,
+    jackKnifeTimer: 0,
+    bleedTime: 0,
+    bleedTickTimer: 0,
+    bleedSourceSlot: null,
+    vulnerableTime: 0,
     airAttackKind: 'kick',
     isLowBlock: false,
     comboCount: 0,
@@ -387,6 +401,7 @@ const ADAO_COPY_SLOT_MAP: Partial<Record<CharacterId, SpecialSlot>> = {
   beelzebu: 'special2',
   dono: 'special1',
   adao: 'special1',
+  jack: 'special4',
 };
 
 function pickCopiedSpecialForAdao(oppCharId: CharacterId): { sourceSlot: SpecialSlot; move: MoveSpec } {
@@ -410,6 +425,13 @@ function startMove(state: MatchState, f: FighterState, opp: FighterState, move: 
   f.currentMove = move;
   f.hitConnectedThisMove = false;
   f.multiHitsDone = 0;
+
+  if (f.characterId === 'jack' && move.id === 'special1') {
+    const requested = move.jackThrowCount ?? Math.max(1, f.jackKnives);
+    const actualCount = Math.max(1, Math.min(JACK_MAX_KNIVES, Math.max(1, f.jackKnives), requested));
+    f.jackKnives = Math.max(0, f.jackKnives - actualCount);
+    f.currentMove = { ...move, jackThrowCount: actualCount };
+  }
 
   if (move.energyCost > 0) {
     f.energy = Math.max(0, f.energy - move.energyCost);
@@ -495,7 +517,7 @@ function applyHit(
     instantKo?: boolean;
     effectColor: string;
     secondaryColor: string;
-    statusEffect?: 'slow' | 'root' | 'shield' | 'fury' | 'stun' | 'special_lock' | 'poison';
+    statusEffect?: 'slow' | 'root' | 'shield' | 'fury' | 'stun' | 'special_lock' | 'poison' | 'bleed_vuln';
     attackDir: 1 | -1;
   }
 ): void {
@@ -505,7 +527,8 @@ function applyHit(
 
   const defenderDef = CHARACTERS[defender.characterId];
   const furyMul = attacker.furyTime > 0 ? 1.35 : 1;
-  const rawDamage = Math.round(opts.damage * furyMul);
+  const vulnMul = defender.vulnerableTime > 0 ? JACK_VULNERABLE_DAMAGE_MULTIPLIER : 1;
+  const rawDamage = Math.round(opts.damage * furyMul * vulnMul);
 
   // Check blocking (grabs and unblockable attacks bypass block!)
   const isGrounded = defender.y >= GROUND_Y - 1;
@@ -667,6 +690,31 @@ function applyHit(
       kind: 'text',
       text: 'ENVENENADO!',
     });
+  } else if (opts.statusEffect === 'bleed_vuln') {
+    defender.bleedTime = JACK_BLEED_DURATION;
+    if (defender.bleedTickTimer <= 0) {
+      defender.bleedTickTimer = 0.5;
+    }
+    defender.bleedSourceSlot = attacker.slot;
+    defender.vulnerableTime = JACK_VULNERABLE_DURATION;
+    spawnBurst(state, defender.x, defender.y - 32, '#dc2626', '#7f1d1d', 16, 105, 'spark');
+    spawnVisualEffect(state, {
+      kind: 'jack_blood_splatter',
+      x: defender.x,
+      y: defender.y - 32,
+      facing: opts.attackDir,
+      scale: 0.38,
+      maxLife: 0.34,
+    });
+    spawnParticle(state, {
+      x: defender.x,
+      y: defender.y - defenderDef.height - 14,
+      vy: -22,
+      color: '#f87171',
+      maxLife: 0.95,
+      kind: 'text',
+      text: 'SANGRAMENTO!',
+    });
   }
 
   // Knockback & Hitstun (skipped when Adão has super-armor during Special 3 charging!)
@@ -796,6 +844,15 @@ function applyHit(
         maxLife: 0.3,
       });
     }
+  } else if (attacker.characterId === 'jack' && (isHeavy || opts.isSpecial || opts.isLow) && opts.statusEffect !== 'bleed_vuln') {
+    spawnVisualEffect(state, {
+      kind: 'jack_blood_splatter',
+      x: defender.x,
+      y: defender.y - 32,
+      facing: opts.attackDir,
+      scale: isHeavy ? 0.36 : 0.28,
+      maxLife: 0.28,
+    });
   }
 
   state.events.push({
@@ -1785,6 +1842,118 @@ function executeSpecialEffect(state: MatchState, f: FighterState, opp: FighterSt
       kind: 'text',
       text: 'FÚRIA!',
     });
+  } else if (move.kind === 'jack_knives') {
+    const count = Math.max(1, Math.min(JACK_MAX_KNIVES, move.jackThrowCount ?? 1));
+    const speed = move.projectileSpeed ?? 335;
+    for (let i = 0; i < count; i++) {
+      const fanRatio = count === 1 ? 0 : i / (count - 1) - 0.5;
+      const yOffset = move.offsetY + fanRatio * 28;
+      const vy = fanRatio * 48;
+      const vx = f.facing * (speed + (i % 3) * 18);
+      state.projectiles.push({
+        id: state.nextEntityId++,
+        ownerSlot: f.slot,
+        x: f.x + f.facing * (def.width / 2 + 8 + (i % 2) * 6),
+        y: f.y + yOffset,
+        vx,
+        vy,
+        gravity: 0,
+        width: move.rangeX,
+        height: move.rangeY,
+        damage: move.damage,
+        chipDamage: move.chipDamage,
+        knockbackX: move.knockbackX,
+        knockbackY: move.knockbackY,
+        hitstun: move.hitstun,
+        kind: 'jack_knife',
+        color: move.effectColor,
+        secondaryColor: move.secondaryColor,
+        life: 1.8,
+        maxLife: 1.8,
+        hitTargets: [],
+      });
+    }
+    spawnBurst(state, f.x + f.facing * 20, f.y - 36, '#c084fc', '#e2e8f0', 8 + count, 90, 'spark');
+  } else if (move.kind === 'soul_eye') {
+    spawnBurst(state, f.x + f.facing * 8, f.y - 52, '#dc2626', '#7f1d1d', 16, 100, 'spark');
+    spawnVisualEffect(state, {
+      kind: 'jack_soul_eye',
+      x: opp.x,
+      y: opp.y - 36,
+      facing: f.facing,
+      scale: 0.44,
+      maxLife: 0.55,
+    });
+    const inRange =
+      Math.abs(opp.x - f.x) <= move.rangeX &&
+      Math.abs(opp.y - f.y) <= move.rangeY;
+    if (inRange) {
+      const preHitEnergy = opp.energy;
+      const wasBlocked = opp.action === 'block' && opp.y >= GROUND_Y - 1;
+      const canLand = opp.invulnTime <= 0 && opp.action !== 'ko' && opp.action !== 'grabbed';
+      applyHit(state, f, opp, {
+        damage: move.damage,
+        chipDamage: move.chipDamage,
+        knockbackX: move.knockbackX,
+        knockbackY: move.knockbackY,
+        hitstun: move.hitstun,
+        isSpecial: true,
+        effectColor: move.effectColor,
+        secondaryColor: move.secondaryColor,
+        statusEffect: 'slow',
+        attackDir: opp.x >= f.x ? 1 : -1,
+      });
+      if (canLand && !wasBlocked) {
+        f.hitConnectedThisMove = true;
+        opp.slowTime = JACK_SOUL_EYE_SLOW_DURATION;
+        const drained = Math.round(preHitEnergy * 0.5);
+        opp.energy = Math.max(0, preHitEnergy - drained);
+        spawnParticle(state, {
+          x: opp.x,
+          y: opp.y - CHARACTERS[opp.characterId].height - 16,
+          vy: -22,
+          color: '#f87171',
+          maxLife: 0.95,
+          kind: 'text',
+          text: `OLHO DA ALMA! -${drained} EN`,
+        });
+      }
+    }
+    state.shakeTrauma = Math.min(1, state.shakeTrauma + 0.25);
+  } else if (move.kind === 'blood_wave') {
+    spawnVisualEffect(state, {
+      kind: 'jack_blood_splash',
+      x: f.x + f.facing * 20,
+      y: f.y - 38,
+      facing: f.facing,
+      scale: 0.34,
+      maxLife: 0.34,
+    });
+    state.projectiles.push({
+      id: state.nextEntityId++,
+      ownerSlot: f.slot,
+      x: f.x + f.facing * (def.width / 2 + 12),
+      y: f.y + move.offsetY,
+      vx: f.facing * (move.projectileSpeed ?? 280),
+      vy: 0,
+      gravity: 0,
+      width: move.rangeX,
+      height: move.rangeY,
+      damage: move.damage,
+      chipDamage: move.chipDamage,
+      knockbackX: move.knockbackX,
+      knockbackY: move.knockbackY,
+      hitstun: move.hitstun,
+      kind: 'blood_wave',
+      color: move.effectColor,
+      secondaryColor: move.secondaryColor,
+      statusEffect: 'bleed_vuln',
+      life: 1.9,
+      maxLife: 1.9,
+      hitTargets: [],
+    });
+    spawnBurst(state, f.x + f.facing * 24, f.y - 36, '#dc2626', '#7f1d1d', 14, 100, 'spark');
+    state.shakeTrauma = Math.min(1, state.shakeTrauma + 0.28);
   }
 }
 
@@ -1806,6 +1975,7 @@ function updateFighter(
   if (f.stunTime > 0) f.stunTime = Math.max(0, f.stunTime - dt);
   if (f.slipTime > 0) f.slipTime = Math.max(0, f.slipTime - dt);
   if (f.specialLockTime > 0) f.specialLockTime = Math.max(0, f.specialLockTime - dt);
+  if (f.vulnerableTime > 0) f.vulnerableTime = Math.max(0, f.vulnerableTime - dt);
   if (f.special1Cooldown > 0) f.special1Cooldown = Math.max(0, f.special1Cooldown - dt);
   for (const slotKey of ['special1', 'special2', 'special3', 'special4'] as const) {
     if (f.specialCooldowns[slotKey] > 0) {
@@ -1902,6 +2072,59 @@ function updateFighter(
     if (f.poisonTime <= 0) {
       f.poisonSourceSlot = null;
       f.poisonTickTimer = 0;
+    }
+  }
+  if (f.bleedTime > 0 && f.action !== 'ko') {
+    f.bleedTime = Math.max(0, f.bleedTime - dt);
+    f.bleedTickTimer -= dt;
+    if (f.bleedTickTimer <= 0) {
+      f.bleedTickTimer = 0.5;
+      const dotDamage = 10;
+      f.hp = Math.max(0, f.hp - dotDamage);
+      f.hitFlashTime = 0.05;
+      if (f.bleedSourceSlot === 1) {
+        state.f1.totalDamageDealt += dotDamage;
+      } else if (f.bleedSourceSlot === 2) {
+        state.f2.totalDamageDealt += dotDamage;
+      }
+      spawnBurst(state, f.x, f.y - 30, '#dc2626', '#7f1d1d', 7, 70, 'pixel');
+      spawnParticle(state, {
+        x: f.x,
+        y: f.y - def.height - 8,
+        vy: -18,
+        color: '#f87171',
+        maxLife: 0.55,
+        kind: 'text',
+        text: `-${dotDamage}`,
+      });
+    }
+    if (f.bleedTime <= 0) {
+      f.bleedSourceSlot = null;
+      f.bleedTickTimer = 0;
+    }
+  }
+  if (state.roundPhase === 'fighting' && f.characterId === 'jack' && f.action !== 'ko') {
+    if (f.jackKnives < JACK_MAX_KNIVES) {
+      f.jackKnifeTimer += dt;
+      while (f.jackKnifeTimer >= JACK_KNIFE_RECHARGE_SECONDS && f.jackKnives < JACK_MAX_KNIVES) {
+        f.jackKnifeTimer -= JACK_KNIFE_RECHARGE_SECONDS;
+        f.jackKnives += 1;
+        spawnBurst(state, f.x, f.y - 44, '#c084fc', '#e2e8f0', 6, 60, 'spark');
+        spawnParticle(state, {
+          x: f.x,
+          y: f.y - def.height - 10,
+          vy: -18,
+          color: f.jackKnives >= JACK_MAX_KNIVES ? '#f87171' : '#e2e8f0',
+          maxLife: 0.7,
+          kind: 'text',
+          text: `+1 FACA (${f.jackKnives}/${JACK_MAX_KNIVES})`,
+        });
+      }
+      if (f.jackKnives >= JACK_MAX_KNIVES) {
+        f.jackKnifeTimer = 0;
+      }
+    } else {
+      f.jackKnifeTimer = 0;
     }
   }
   if (f.action !== 'block') f.isLowBlock = false;
@@ -2063,7 +2286,8 @@ function updateFighter(
           f.characterId === 'tesla' ||
           f.characterId === 'beelzebu' ||
           f.characterId === 'dono' ||
-          f.characterId === 'adao')
+          f.characterId === 'adao' ||
+          f.characterId === 'jack')
       ) {
         f.action = 'getup';
         f.actionTime = 0;
@@ -2265,6 +2489,29 @@ function updateFighter(
       if (inActive && Math.floor(f.actionTime * 16) > Math.floor(prevTime * 16)) {
         spawnBurst(state, f.x + f.facing * 20, GROUND_Y - 32, '#e2e8f0', '#a855f7', 5, 85, 'spark');
       }
+    } else if (move.kind === 'scissor_spin') {
+      f.vx = inActive ? f.facing * 205 : 0;
+      if (justEnteredActive) {
+        spawnVisualEffect(state, {
+          kind: 'jack_giant_scissors',
+          x: f.x + f.facing * 24,
+          y: f.y - 40,
+          facing: f.facing,
+          scale: 0.4,
+          maxLife: 0.24,
+        });
+      }
+      if (inActive && Math.floor(f.actionTime * 12) > Math.floor(prevTime * 12)) {
+        spawnVisualEffect(state, {
+          kind: 'jack_scissor_spin',
+          x: f.x,
+          y: f.y - 34,
+          facing: f.facing,
+          scale: 0.42,
+          rotation: ((f.actionTime * 11) % (Math.PI * 2)),
+          maxLife: 0.16,
+        });
+      }
     } else if (move.kind === 'charged_ko_fist') {
       f.vx = 0;
       if (justEnteredActive) {
@@ -2374,6 +2621,7 @@ function updateFighter(
       move.kind !== 'dash_combo' &&
       move.kind !== 'barrage_rush' &&
       move.kind !== 'axe_dash' &&
+      move.kind !== 'scissor_spin' &&
       move.kind !== 'charged_ko_fist' &&
       move.kind !== 'leap_slam' &&
       move.kind !== 'fire_breath' &&
@@ -2599,6 +2847,38 @@ function updateFighter(
             });
           }
         }
+      } else if (move.kind === 'scissor_spin') {
+        const hitCount = 4;
+        const hitInterval = move.active / hitCount;
+        const expectedHits = Math.min(hitCount, Math.floor((f.actionTime - move.startup) / hitInterval) + 1);
+        if (expectedHits > f.multiHitsDone) {
+          const hb = getMoveHitbox(f, move);
+          if (rectsOverlap(hb, getFighterHurtbox(opp))) {
+            f.multiHitsDone = expectedHits;
+            const isFinal = expectedHits === hitCount;
+            applyHit(state, f, opp, {
+              damage: Math.round(move.damage / hitCount),
+              chipDamage: Math.round(move.chipDamage / hitCount),
+              knockbackX: isFinal ? move.knockbackX : 28,
+              knockbackY: isFinal ? move.knockbackY : -14,
+              hitstun: isFinal ? move.hitstun : 0.25,
+              isSpecial: true,
+              effectColor: move.effectColor,
+              secondaryColor: move.secondaryColor,
+              attackDir: f.facing,
+            });
+            if (isFinal) {
+              spawnVisualEffect(state, {
+                kind: 'jack_giant_scissors',
+                x: opp.x,
+                y: opp.y - 34,
+                facing: f.facing,
+                scale: 0.44,
+                maxLife: 0.28,
+              });
+            }
+          }
+        }
       } else if (move.kind === 'charged_ko_fist') {
         if (!f.hitConnectedThisMove) {
           const hb = getMoveHitbox(f, move);
@@ -2732,12 +3012,19 @@ function updateFighter(
           if (slotKey === 'special1' && (f.donoAmmo <= 0 || f.donoReloadTimer > 0)) return false;
           if (slotKey !== 'special1' && f.specialCooldowns[slotKey] > 0) return false;
         }
+        if (f.characterId === 'jack' && slotKey === 'special1' && f.jackKnives <= 0) {
+          return false;
+        }
         const sp = getEffectiveSpecial(f, slotKey);
         if (f.characterId === 'adao' && slotKey === 'special3') {
           return false;
         }
         if (f.energy >= sp.energyCost) {
-          startMove(state, f, opp, sp);
+          const moveToStart =
+            f.characterId === 'jack' && slotKey === 'special1'
+              ? { ...sp, jackThrowCount: input.down ? 1 : Math.min(JACK_MAX_KNIVES, f.jackKnives) }
+              : sp;
+          startMove(state, f, opp, moveToStart);
           return true;
         }
         return false;
@@ -2757,7 +3044,8 @@ function updateFighter(
           f.characterId === 'tesla' ||
           f.characterId === 'beelzebu' ||
           f.characterId === 'dono' ||
-          f.characterId === 'adao') &&
+          f.characterId === 'adao' ||
+          f.characterId === 'jack') &&
         f.action === 'punch' &&
         input.punchPressed
       ) {
@@ -2777,7 +3065,8 @@ function updateFighter(
             f.characterId === 'tesla' ||
             f.characterId === 'beelzebu' ||
             f.characterId === 'dono' ||
-            f.characterId === 'adao'
+            f.characterId === 'adao' ||
+            f.characterId === 'jack'
           ? NORMAL_MOVES.heavy_kick
           : NORMAL_MOVES.kick;
         startMove(state, f, opp, kickMove);
@@ -2940,6 +3229,23 @@ function updateFighter(
       f.facing = opp.x > f.x ? 1 : -1;
     }
 
+    // Jack Estripador: automatic 8-knife barrage upon reaching max capacity
+    if (
+      f.characterId === 'jack' &&
+      f.jackKnives >= JACK_MAX_KNIVES &&
+      isGrounded &&
+      f.specialLockTime <= 0 &&
+      f.action !== 'block' &&
+      f.action !== 'crouch'
+    ) {
+      startMove(state, f, opp, {
+        ...def.specials.special1,
+        energyCost: 0,
+        jackThrowCount: JACK_MAX_KNIVES,
+      });
+      return;
+    }
+
     // Start Adão Time Transcending Fist hold charge when Special 3 is held/pressed
     if (
       f.characterId === 'adao' &&
@@ -2992,9 +3298,16 @@ function updateFighter(
           return false;
         }
       }
+      if (f.characterId === 'jack' && slotKey === 'special1' && f.jackKnives <= 0) {
+        return false;
+      }
       const move = getEffectiveSpecial(f, slotKey);
       if (f.energy >= move.energyCost && isGrounded) {
-        startMove(state, f, opp, move);
+        const moveToStart =
+          f.characterId === 'jack' && slotKey === 'special1'
+            ? { ...move, jackThrowCount: input.down ? 1 : Math.min(JACK_MAX_KNIVES, f.jackKnives) }
+            : move;
+        startMove(state, f, opp, moveToStart);
         return true;
       }
       return false;
@@ -3048,7 +3361,8 @@ function updateFighter(
         f.characterId === 'tesla' ||
         f.characterId === 'beelzebu' ||
         f.characterId === 'dono' ||
-        f.characterId === 'adao') &&
+        f.characterId === 'adao' ||
+        f.characterId === 'jack') &&
       input.block &&
       moveDir !== 0 &&
       isGrounded &&
@@ -3127,7 +3441,8 @@ function updateFighter(
         f.characterId === 'tesla' ||
         f.characterId === 'beelzebu' ||
         f.characterId === 'dono' ||
-        f.characterId === 'adao') &&
+        f.characterId === 'adao' ||
+        f.characterId === 'jack') &&
       f.action === 'crouch' &&
       isGrounded &&
       !input.down &&
@@ -3179,7 +3494,8 @@ function updateFighter(
             f.characterId === 'tesla' ||
             f.characterId === 'beelzebu' ||
             f.characterId === 'dono' ||
-            f.characterId === 'adao') &&
+            f.characterId === 'adao' ||
+            f.characterId === 'jack') &&
           f.moveHoldTime >= 0.28;
         const nextAction: FighterAction = shouldRun ? 'run' : 'walk';
         if (f.action !== nextAction) {
@@ -3558,6 +3874,34 @@ function updateProjectiles(state: MatchState, dt: number): void {
             maxLife: 0.26,
           });
           state.shakeTrauma = Math.min(1, state.shakeTrauma + 0.22);
+        } else if (p.kind === 'jack_knife') {
+          spawnVisualEffect(state, {
+            kind: 'jack_knife_burst',
+            x: target.x,
+            y: p.y,
+            facing: p.vx >= 0 ? 1 : -1,
+            scale: 0.28,
+            maxLife: 0.24,
+          });
+          state.shakeTrauma = Math.min(1, state.shakeTrauma + 0.14);
+        } else if (p.kind === 'blood_wave') {
+          spawnVisualEffect(state, {
+            kind: 'jack_blood_splatter',
+            x: target.x,
+            y: p.y,
+            facing: p.vx >= 0 ? 1 : -1,
+            scale: 0.36,
+            maxLife: 0.32,
+          });
+          spawnVisualEffect(state, {
+            kind: 'jack_blood_eruption',
+            x: target.x,
+            y: GROUND_Y - 26,
+            facing: p.vx >= 0 ? 1 : -1,
+            scale: 0.36,
+            maxLife: 0.38,
+          });
+          state.shakeTrauma = Math.min(1, state.shakeTrauma + 0.3);
         }
         if (!p.piercing) {
           state.projectiles.splice(i, 1);
@@ -3990,7 +4334,8 @@ export function computeAiInputs(state: MatchState, dt: number): InputState {
       canAnySpecial &&
       (ai.characterId !== 'tesla' || ai.special1Cooldown <= 0) &&
       (ai.characterId !== 'beelzebu' || ai.specialCooldowns.special1 <= 0) &&
-      (ai.characterId !== 'dono' || (ai.donoAmmo > 0 && ai.donoReloadTimer <= 0));
+      (ai.characterId !== 'dono' || (ai.donoAmmo > 0 && ai.donoReloadTimer <= 0)) &&
+      (ai.characterId !== 'jack' || ai.jackKnives >= 1);
     const canAiSpecial2 =
       canAnySpecial &&
       (ai.characterId !== 'beelzebu' || ai.specialCooldowns.special2 <= 0) &&
@@ -4464,6 +4809,40 @@ function finishRound(state: MatchState, winner: 1 | 2): void {
         x: winFighter.x,
         y: GROUND_Y - 32,
         color: '#c084fc',
+        size: 13,
+        maxLife: 0.7,
+        kind: 'ring',
+      });
+    } else if (winFighter.characterId === 'jack') {
+      spawnVisualEffect(state, {
+        kind: 'jack_soul_eye',
+        x: winFighter.x,
+        y: GROUND_Y - 46,
+        facing: winFighter.facing,
+        scale: 0.46,
+        maxLife: 1.25,
+      });
+      spawnVisualEffect(state, {
+        kind: 'jack_blood_splash',
+        x: winFighter.x + winFighter.facing * 14,
+        y: GROUND_Y - 34,
+        facing: winFighter.facing,
+        scale: 0.42,
+        maxLife: 0.9,
+      });
+      spawnVisualEffect(state, {
+        kind: 'jack_scissor_spin',
+        x: winFighter.x,
+        y: GROUND_Y - 34,
+        facing: winFighter.facing,
+        scale: 0.42,
+        maxLife: 0.8,
+      });
+      spawnBurst(state, winFighter.x, GROUND_Y - 36, '#dc2626', '#a855f7', 22, 135, 'spark');
+      spawnParticle(state, {
+        x: winFighter.x,
+        y: GROUND_Y - 32,
+        color: '#dc2626',
         size: 13,
         maxLife: 0.7,
         kind: 'ring',

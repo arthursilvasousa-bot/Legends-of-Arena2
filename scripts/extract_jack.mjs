@@ -545,27 +545,36 @@ const s3Rest = s3BodyComps.slice(2).map((c) => componentWithEdgesToImage(special
 const S3_SCALE = TARGET_STANDING_H / 143;
 const special3Frames = [s3P0, s3P1, s3P2, ...s3Rest].map((f) => scaleImage(removeIsolatedDots(f, 14), S3_SCALE));
 
-// Separate Giant Scissors & Crouching Spin Slash FX from S3 right side
+// Separate Giant Scissors & Spin Slash FX from S3 right side (zero adjacent slivers or mini-Jack)
 const scissorsOpenRaw = extractMaskedBox(
   specialsBuf,
-  [1220, 468, 1362, 622],
+  [1224, 468, 1362, 622],
   14,
   s3Excl,
-  (x, y) => y <= 570 || (x >= 1244 && x <= 1308 && y <= 622)
+  (x, y) => !(x <= 1228 && y >= 515 && y <= 585) && (y <= 570 || (x >= 1244 && x <= 1308 && y <= 622))
 );
 const scissorsClosedRaw = extractMaskedBox(
   specialsBuf,
   [1366, 465, 1528, 597],
   14,
   s3Excl,
-  (x, y) => (y <= 574 || (x <= 1506 && y <= 597)) && !(x <= 1410 && y >= 578)
+  (x, y) => (y <= 574 || (x <= 1506 && y <= 597)) && !(x <= 1418 && y >= 568)
 );
 const scissorSpinSlashRaw = extractMaskedBox(
   specialsBuf,
-  [1220, 574, 1528, 692],
-  12,
+  [1215, 574, 1532, 692],
+  14,
   s3Excl,
-  (x, y) => !(x >= 1242 && x <= 1312 && y <= 622) && !(x >= 1372 && x <= 1510 && y <= 598)
+  (x, y, r, g, b, a) => {
+    // Exclude giant_scissors_open bottom handle & giant_scissors_closed blade tip
+    if (x >= 1242 && x <= 1312 && y <= 622) return false;
+    if (x >= 1372 && x <= 1510 && y <= 598) return false;
+    // Exclude miniature Jack body/hat/cape completely so rotation FX is 100% independent of character sprites
+    if (x >= 1352 && x <= 1409 && y <= 658) return false;
+    if (x >= 1338 && x <= 1452 && y <= 676 && (r > b + 6 || Math.max(r, g, b) < 120)) return false;
+    if (x >= 1345 && x <= 1435 && y <= 666 && a > 20 && b <= r + 4) return false;
+    return true;
+  }
 );
 
 // Special 4 — Mãos de Deus (6 character poses + 4 crimson blood FX)
@@ -616,8 +625,8 @@ const addSeq = (key, folder, frames, fps, loop, fixedAnchor = true, impactFrame 
   );
 };
 
-// Movement & defense: 9–12 FPS
-addSeq('idle', 'idle', idleFrames, 9, true, true);
+// Movement & defense: 10–12 FPS
+addSeq('idle', 'idle', idleFrames, 10, true, true);
 addSeq('walk', 'walk', walkFrames, 11, true, true);
 addSeq('run', 'run', runFrames, 12, true, true);
 addSeq('jump', 'jump', jumpFrames, 11, false, true);

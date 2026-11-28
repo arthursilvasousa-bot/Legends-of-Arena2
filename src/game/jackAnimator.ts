@@ -54,7 +54,7 @@ export const JACK_SEQUENCES: Record<JackSequenceKey, JackSequenceMeta> = {
     frameWidth: 122,
     frameHeight: 166,
     frameCount: 4,
-    fps: 9,
+    fps: 10,
     loop: true,
     anchorX: 64,
     anchorY: 162,

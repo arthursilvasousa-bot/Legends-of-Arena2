@@ -20,6 +20,8 @@ import { DONO_RENDER_SCALE, resolveDonoFrame } from './donoAnimator';
 import { donoSpriteCache } from './donoSpritesLoader';
 import { ADAO_RENDER_SCALE, ADAO_SPECIAL3_CHARGE_DURATION, resolveAdaoFrame } from './adaoAnimator';
 import { adaoSpriteCache } from './adaoSpritesLoader';
+import { JACK_RENDER_SCALE, resolveJackFrame } from './jackAnimator';
+import { jackSpriteCache } from './jackSpritesLoader';
 import { CHARACTERS, GROUND_Y } from './roster';
 import { CharacterId, FighterState } from './types';
 
@@ -114,12 +116,69 @@ function renderPoisonOverlay(
   ctx.restore();
 }
 
+function renderBleedAndVulnerableOverlay(
+  ctx: CanvasRenderingContext2D,
+  f: FighterState,
+  globalTime: number
+): void {
+  if ((f.bleedTime <= 0 && f.vulnerableTime <= 0) || f.action === 'ko') return;
+  const def = CHARACTERS[f.characterId];
+  const cx = Math.round(f.x);
+  const pulse = 0.6 + 0.35 * Math.sin(globalTime * 12 + f.slot);
+
+  ctx.save();
+  if (f.bleedTime > 0) {
+    // Stylized crimson aura outline
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 1.6;
+    ctx.globalAlpha = 0.55 * pulse;
+    ctx.beginPath();
+    ctx.ellipse(cx, Math.round(f.y - def.height * 0.48), def.width * 0.7, def.height * 0.46, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Stylized dripping blood droplets
+    for (let i = 0; i < 5; i++) {
+      const t = (globalTime * 1.6 + i * 0.21) % 1;
+      const bx = Math.round(cx + Math.sin(i * 2.4 + f.slot) * (def.width * 0.42));
+      const by = Math.round(f.y - def.height * 0.8 + t * (def.height * 0.78));
+      ctx.globalAlpha = Math.max(0, (1 - t * 0.75) * 0.88);
+      ctx.fillStyle = i % 2 === 0 ? '#ef4444' : '#991b1b';
+      ctx.fillRect(bx - 1, by - 2, 2, 4);
+    }
+  }
+
+  if (f.vulnerableTime > 0) {
+    // Crimson vulnerability diamond marker above head
+    const vy = Math.round(f.y - def.height - 14 + Math.sin(globalTime * 9) * 1.5);
+    ctx.globalAlpha = 0.92;
+    ctx.fillStyle = '#09070d';
+    ctx.beginPath();
+    ctx.moveTo(cx, vy - 6);
+    ctx.lineTo(cx + 6, vy);
+    ctx.lineTo(cx, vy + 6);
+    ctx.lineTo(cx - 6, vy);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.moveTo(cx, vy - 4);
+    ctx.lineTo(cx + 4, vy);
+    ctx.lineTo(cx, vy + 4);
+    ctx.lineTo(cx - 4, vy);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
 export function renderFighter(
   ctx: CanvasRenderingContext2D,
   f: FighterState,
   globalTime: number
 ): void {
   drawFighterBody(ctx, f, globalTime);
+  renderBleedAndVulnerableOverlay(ctx, f, globalTime);
   renderPoisonOverlay(ctx, f, globalTime);
   renderSpecialLockOverlay(ctx, f, globalTime);
 }
@@ -874,6 +933,121 @@ function drawFighterBody(
         ctx.restore();
       }
 
+      if (f.stunTime > 0) {
+        const starsImg = jaylonSpriteCache.getFxImage('fx_jaylon_stun_stars');
+        if (starsImg) {
+          const swS = starsImg.width * 0.4;
+          const shS = starsImg.height * 0.4;
+          const bob = Math.sin(globalTime * 10) * 2;
+          ctx.drawImage(starsImg, Math.round(f.x - swS * 0.5), Math.round(f.y - def.height - 24 + bob), swS, shS);
+        }
+      }
+      return;
+    }
+  }
+
+  // Jack Estripador high-detail pixel-art sprite renderer
+  if (f.characterId === 'jack') {
+    const resolved = resolveJackFrame(f, globalTime);
+    const stripImg = jackSpriteCache.getSequenceImage(resolved.sequence.key);
+    if (stripImg) {
+      const seq = resolved.sequence;
+      const sx = resolved.frameIndex * seq.frameWidth;
+      const sy = 0;
+      const sw = seq.frameWidth;
+      const sh = seq.frameHeight;
+      const drawW = sw * JACK_RENDER_SCALE;
+      const drawH = sh * JACK_RENDER_SCALE;
+      const dx = -seq.anchorX * JACK_RENDER_SCALE;
+      const dy = -seq.anchorY * JACK_RENDER_SCALE;
+
+      // Dark crimson aura during Olho da Alma (Special 2)
+      if (f.action === 'special2') {
+        ctx.save();
+        const pulse = 0.42 + 0.25 * Math.sin(globalTime * 22);
+        ctx.globalAlpha = pulse;
+        const grad = ctx.createRadialGradient(
+          Math.round(f.x),
+          Math.round(f.y - 38),
+          6,
+          Math.round(f.x),
+          Math.round(f.y - 38),
+          36
+        );
+        grad.addColorStop(0, 'rgba(220, 38, 38, 0.85)');
+        grad.addColorStop(0.55, 'rgba(127, 29, 29, 0.48)');
+        grad.addColorStop(1, 'rgba(127, 29, 29, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(Math.round(f.x), Math.round(f.y - 38), 36, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.save();
+      ctx.translate(Math.round(f.x), Math.round(f.y));
+      ctx.scale(f.facing * f.squashX, f.squashY);
+      ctx.globalAlpha = 1;
+      const prevSmooth = ctx.imageSmoothingEnabled;
+      ctx.imageSmoothingEnabled = true;
+
+      if (f.hitFlashTime > 0) {
+        ctx.filter = 'brightness(2.4) contrast(1.2)';
+      } else if (f.slowTime > 0) {
+        ctx.filter = 'hue-rotate(175deg) saturate(1.35)';
+      }
+
+      ctx.drawImage(stripImg, sx, sy, sw, sh, dx, dy, drawW, drawH);
+
+      ctx.filter = 'none';
+      ctx.imageSmoothingEnabled = prevSmooth;
+
+      // Glowing crimson Soul Eye glint on Jack's eye during Special 2
+      if (f.action === 'special2' && f.hitFlashTime <= 0) {
+        const eyeX = 5;
+        const eyeY = -63.5;
+        ctx.save();
+        ctx.globalAlpha = 0.88;
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.55)';
+        ctx.beginPath();
+        ctx.arc(eyeX, eyeY, 2.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(eyeX, eyeY, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fecaca';
+        ctx.beginPath();
+        ctx.moveTo(eyeX - 3.4, eyeY);
+        ctx.lineTo(eyeX, eyeY - 0.55);
+        ctx.lineTo(eyeX + 3.4, eyeY);
+        ctx.lineTo(eyeX, eyeY + 0.55);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(eyeX, eyeY - 2.2);
+        ctx.lineTo(eyeX + 0.5, eyeY);
+        ctx.lineTo(eyeX, eyeY + 2.2);
+        ctx.lineTo(eyeX - 0.5, eyeY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      if (f.shieldTime > 0) {
+        ctx.strokeStyle = '#fde047';
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.72 + Math.sin(globalTime * 12) * 0.2;
+        ctx.beginPath();
+        ctx.ellipse(0, -def.height / 2, def.width * 0.78, def.height * 0.62, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      if (f.rootTime > 0) {
+        pxRect(ctx, -12, -14, 5, 14, '#c084fc');
+        pxRect(ctx, 7, -14, 5, 14, '#c084fc');
+      }
+
+      ctx.restore();
       if (f.stunTime > 0) {
         const starsImg = jaylonSpriteCache.getFxImage('fx_jaylon_stun_stars');
         if (starsImg) {

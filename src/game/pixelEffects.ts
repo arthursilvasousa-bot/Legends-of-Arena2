@@ -8,11 +8,13 @@ import { trollSpriteCache } from './trollSpritesLoader';
 import { teslaSpriteCache } from './teslaSpritesLoader';
 import { beelzebuSpriteCache } from './beelzebuSpritesLoader';
 import { donoSpriteCache } from './donoSpritesLoader';
+import { jackSpriteCache } from './jackSpritesLoader';
 import { GROUND_Y, STAGE_HEIGHT, STAGE_LEFT_BOUND, STAGE_RIGHT_BOUND, STAGE_WIDTH } from './roster';
 import {
   BeelzebuFxKind,
   DonoFxKind,
   ElfFxKind,
+  JackFxKind,
   JaylonFxKind,
   MatchState,
   MinotaurFxKind,
@@ -51,6 +53,9 @@ function resolveFxSpriteImage(kind: VisualEffectKind): HTMLImageElement | null {
   }
   if (kind.startsWith('dono_')) {
     return donoSpriteCache.getFxImage(kind as DonoFxKind);
+  }
+  if (kind.startsWith('jack_')) {
+    return jackSpriteCache.getFxImage(kind as JackFxKind);
   }
   return ninjaSpriteCache.getFxImage(kind as NinjaFxKind);
 }
@@ -722,6 +727,60 @@ export function renderProjectilesAndHazards(
         ctx.fillStyle = '#fef08a';
         ctx.fillRect(0, -1.5, 7, 3);
       }
+    } else if (p.kind === 'jack_knife') {
+      const knifeImg = jackSpriteCache.getFxImage('jack_knife_single');
+      const trailImg = jackSpriteCache.getFxImage('jack_knife_trail');
+      const angle = Math.atan2(p.vy, p.vx);
+      ctx.translate(px, py);
+      ctx.rotate(angle);
+      if (trailImg) {
+        const prevSmooth = ctx.imageSmoothingEnabled;
+        ctx.imageSmoothingEnabled = true;
+        const tw = trailImg.width * 0.24;
+        const th = trailImg.height * 0.24;
+        ctx.globalAlpha = 0.72;
+        ctx.drawImage(trailImg, -tw * 0.92, -th * 0.5, tw, th);
+        ctx.globalAlpha = 1;
+        ctx.imageSmoothingEnabled = prevSmooth;
+      }
+      if (knifeImg) {
+        const prevSmooth = ctx.imageSmoothingEnabled;
+        ctx.imageSmoothingEnabled = true;
+        const kw = knifeImg.width * 0.22;
+        const kh = knifeImg.height * 0.22;
+        ctx.drawImage(knifeImg, -kw * 0.45, -kh * 0.5, kw, kh);
+        ctx.imageSmoothingEnabled = prevSmooth;
+      } else {
+        ctx.fillStyle = '#09070d';
+        ctx.fillRect(-10, -2.5, 20, 5);
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(-3, -1.5, 12, 3);
+        ctx.fillStyle = '#a855f7';
+        ctx.fillRect(-9, -1.5, 6, 3);
+      }
+    } else if (p.kind === 'blood_wave') {
+      const waveImg = jackSpriteCache.getFxImage('jack_blood_wave');
+      ctx.translate(px, py);
+      ctx.scale(dir, 1);
+      if (waveImg) {
+        const prevSmooth = ctx.imageSmoothingEnabled;
+        ctx.imageSmoothingEnabled = true;
+        const pulse = 1 + Math.sin(globalTime * 22) * 0.06;
+        const ww = waveImg.width * 0.24 * pulse;
+        const wh = waveImg.height * 0.24 * pulse;
+        ctx.globalAlpha = 0.94;
+        ctx.drawImage(waveImg, -ww * 0.5, -wh * 0.5, ww, wh);
+        ctx.imageSmoothingEnabled = prevSmooth;
+      } else {
+        ctx.fillStyle = '#7f1d1d';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 18, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.ellipse(3, 0, 11, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
     ctx.restore();
   }
@@ -797,7 +856,10 @@ export function renderProjectilesAndHazards(
       continue;
     }
 
-    const img = resolveFxSpriteImage(fx.kind);
+    const img =
+      fx.kind === 'jack_giant_scissors' && progress >= 0.5
+        ? jackSpriteCache.getFxImage('jack_giant_scissors_closed') ?? resolveFxSpriteImage(fx.kind)
+        : resolveFxSpriteImage(fx.kind);
     if (!img) continue;
     const isBurst =
       fx.kind === 'fx_explosao' ||
@@ -831,7 +893,11 @@ export function renderProjectilesAndHazards(
       fx.kind === 'beelzebu_dominio_explosion' ||
       fx.kind === 'dono_festa_muzzle_flash' ||
       fx.kind === 'dono_festa_impact' ||
-      fx.kind === 'dono_atividade_wave';
+      fx.kind === 'dono_atividade_wave' ||
+      fx.kind === 'jack_knife_burst' ||
+      fx.kind === 'jack_blood_splatter' ||
+      fx.kind === 'jack_blood_splash' ||
+      fx.kind === 'jack_blood_eruption';
     const scaleBoost = isBurst
       ? fx.scale * (0.85 + progress * 0.35)
       : fx.kind === 'fx_fumaca' ||
@@ -854,7 +920,8 @@ export function renderProjectilesAndHazards(
         : fx.kind === 'dono_festa_impact' ||
           fx.kind === 'dono_atividade_wave' ||
           fx.kind === 'dono_camuflagem_smoke' ||
-          fx.kind === 'dono_maryjuana_cloud'
+          fx.kind === 'dono_maryjuana_cloud' ||
+          fx.kind === 'jack_soul_eye'
         ? 4
         : 1;
 

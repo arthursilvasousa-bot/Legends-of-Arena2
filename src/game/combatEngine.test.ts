@@ -30,14 +30,36 @@ function advanceFrames(
   }
 }
 
-test('roster contains 11 characters with 4 specials each and 6 unique arenas with Templo das Sombras', () => {
-  assert.equal(CHARACTER_LIST.length, 11);
+test('roster contains 12 characters with 4 specials each and 6 unique arenas including Favela — Vida Loka', () => {
+  assert.equal(CHARACTER_LIST.length, 12);
   assert.equal(ARENA_LIST.length, 6);
   const arenaIds = new Set(ARENA_LIST.map((a) => a.id));
   assert.equal(arenaIds.size, 6);
+  assert.ok(!arenaIds.has('realm_of_dead' as never));
   const shadowTemple = ARENA_LIST.find((a) => a.id === 'shadow_temple');
   assert.ok(shadowTemple);
   assert.equal(shadowTemple.name, 'Templo das Sombras');
+
+  const favelaArena = ARENA_LIST.find((a) => a.id === 'favela_vida_loka');
+  assert.ok(favelaArena);
+  assert.equal(favelaArena.name, 'Favela — Vida Loka');
+  const favelaLayers: [string, number, number][] = [
+    ['/assets/arenas/favela_far.png', 520, 270],
+    ['/assets/arenas/favela_hills.png', 520, 270],
+    ['/assets/arenas/favela_mid.png', 520, 270],
+    ['/assets/arenas/favela_floor.png', 540, 72],
+    ['/assets/arenas/favela_heli.png', 84, 30],
+    ['/assets/arenas/favela_flag_l.png', 46, 56],
+    ['/assets/arenas/favela_flag_c.png', 92, 66],
+    ['/assets/arenas/favela_flag_r.png', 60, 112],
+  ];
+  for (const [rel, expectedW, expectedH] of favelaLayers) {
+    const p = path.join(process.cwd(), 'public', rel.replace(/^\//, ''));
+    assert.ok(fs.existsSync(p), `Missing Favela layer ${p}`);
+    const hdr = fs.readFileSync(p).subarray(0, 24);
+    assert.equal(hdr.readUInt32BE(16), expectedW, `Unexpected width for ${rel}`);
+    assert.equal(hdr.readUInt32BE(20), expectedH, `Unexpected height for ${rel}`);
+  }
 
   const shadowLayers = [
     '/assets/arenas/shadow_temple_far.png',
@@ -205,7 +227,7 @@ test('character specials apply unique effects (Ninja teleport, Elf freeze, Pries
   assert.ok(trollState.f1.furyTime > 5, 'Troll Fury buff should activate');
 
   // Necromancer Underworld Hands roots opponent
-  const necroState = createMatchState('necromancer', 'minotaur', 'realm_of_dead', 'versus', 'normal', true);
+  const necroState = createMatchState('necromancer', 'minotaur', 'shadow_temple', 'versus', 'normal', true);
   necroState.f1.x = 140;
   necroState.f2.x = 300;
   stepMatch(necroState, { ...createEmptyInput(), special2Pressed: true }, createEmptyInput(), 1 / 60);

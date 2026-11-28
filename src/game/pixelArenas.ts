@@ -1,3 +1,20 @@
+import {
+  ELVEN_BUTTERFLIES,
+  ELVEN_GNOME_SPECS,
+  computeElvenParallaxShifts,
+  computeLanternFlicker,
+  computeMushroomPulse,
+  evaluateButterflyState,
+  evaluateGnomeBehavior,
+} from './elvenForestHelpers';
+import {
+  FAVELA_CROWD_SPECS,
+  computeFlagWaveOffset,
+  computeFavelaParallaxShifts,
+  computeSpeakerPulse,
+  evaluateFavelaSpectator,
+  evaluateHelicopterState,
+} from './favelaHelpers';
 import { ARENAS, GROUND_Y, STAGE_HEIGHT, STAGE_WIDTH } from './roster';
 import { ArenaId } from './types';
 
@@ -425,7 +442,9 @@ type GlowStampKind =
   | 'smoke'
   | 'valley_mist'
   | 'water_foam'
-  | 'hell_mist';
+  | 'hell_mist'
+  | 'elven_mist'
+  | 'elven_cyan';
 const glowStampCache = new Map<GlowStampKind, HTMLCanvasElement>();
 
 function getGlowStamp(kind: GlowStampKind): HTMLCanvasElement | null {
@@ -433,7 +452,10 @@ function getGlowStamp(kind: GlowStampKind): HTMLCanvasElement | null {
   const cached = glowStampCache.get(kind);
   if (cached) return cached;
 
-  const size = kind === 'mist' || kind === 'valley_mist' || kind === 'hell_mist' ? 96 : 64;
+  const size =
+    kind === 'mist' || kind === 'valley_mist' || kind === 'hell_mist' || kind === 'elven_mist'
+      ? 96
+      : 64;
   const c = document.createElement('canvas');
   c.width = size;
   c.height = size;
@@ -473,6 +495,15 @@ function getGlowStamp(kind: GlowStampKind): HTMLCanvasElement | null {
     grad.addColorStop(0, 'rgba(92, 42, 34, 0.58)');
     grad.addColorStop(0.55, 'rgba(44, 18, 16, 0.26)');
     grad.addColorStop(1, 'rgba(14, 6, 6, 0)');
+  } else if (kind === 'elven_mist') {
+    grad.addColorStop(0, 'rgba(147, 197, 253, 0.48)');
+    grad.addColorStop(0.5, 'rgba(59, 130, 246, 0.2)');
+    grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+  } else if (kind === 'elven_cyan') {
+    grad.addColorStop(0, 'rgba(165, 243, 252, 0.95)');
+    grad.addColorStop(0.35, 'rgba(34, 211, 238, 0.62)');
+    grad.addColorStop(0.7, 'rgba(59, 130, 246, 0.2)');
+    grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
   } else {
     grad.addColorStop(0, 'rgba(203, 213, 225, 0.85)');
     grad.addColorStop(0.55, 'rgba(148, 163, 184, 0.35)');
@@ -1524,11 +1555,903 @@ function renderMinotaurColiseum(
   return true;
 }
 
+type ElvenForestAssetKey =
+  | 'far'
+  | 'castle'
+  | 'mid'
+  | 'floor'
+  | 'lantern_l'
+  | 'lantern_r1'
+  | 'lantern_r2'
+  | 'gnome_1'
+  | 'gnome_2'
+  | 'gnome_3'
+  | 'gnome_4'
+  | 'occ_l_trunk'
+  | 'occ_r_rock'
+  | 'occ_r_boulder'
+  | 'occ_l_bush';
+
+const ELVEN_FOREST_FILES: Record<ElvenForestAssetKey, string> = {
+  far: '/assets/arenas/elven_forest_far.png',
+  castle: '/assets/arenas/elven_forest_castle.png',
+  mid: '/assets/arenas/elven_forest_mid.png',
+  floor: '/assets/arenas/elven_forest_floor.png',
+  lantern_l: '/assets/arenas/elven_forest_lantern_l.png',
+  lantern_r1: '/assets/arenas/elven_forest_lantern_r1.png',
+  lantern_r2: '/assets/arenas/elven_forest_lantern_r2.png',
+  gnome_1: '/assets/arenas/elven_forest_gnome_1.png',
+  gnome_2: '/assets/arenas/elven_forest_gnome_2.png',
+  gnome_3: '/assets/arenas/elven_forest_gnome_3.png',
+  gnome_4: '/assets/arenas/elven_forest_gnome_4.png',
+  occ_l_trunk: '/assets/arenas/elven_forest_occ_l_trunk.png',
+  occ_r_rock: '/assets/arenas/elven_forest_occ_r_rock.png',
+  occ_r_boulder: '/assets/arenas/elven_forest_occ_r_boulder.png',
+  occ_l_bush: '/assets/arenas/elven_forest_occ_l_bush.png',
+};
+
+const elvenForestImages = new Map<ElvenForestAssetKey, HTMLImageElement>();
+const elvenReadyListeners = new Set<() => void>();
+let elvenForestLoaded = false;
+
+export function onElvenForestAssetsReady(cb: () => void): () => void {
+  elvenReadyListeners.add(cb);
+  ensureElvenForestAssets();
+  const coreReady =
+    getElvenForestImage('far') &&
+    getElvenForestImage('castle') &&
+    getElvenForestImage('mid') &&
+    getElvenForestImage('floor');
+  if (coreReady) {
+    cb();
+  }
+  return () => {
+    elvenReadyListeners.delete(cb);
+  };
+}
+
+function notifyElvenListenersIfReady(): void {
+  const far = elvenForestImages.get('far');
+  const castle = elvenForestImages.get('castle');
+  const mid = elvenForestImages.get('mid');
+  const floor = elvenForestImages.get('floor');
+  if (
+    far?.complete &&
+    far.naturalWidth > 0 &&
+    castle?.complete &&
+    castle.naturalWidth > 0 &&
+    mid?.complete &&
+    mid.naturalWidth > 0 &&
+    floor?.complete &&
+    floor.naturalWidth > 0
+  ) {
+    for (const cb of elvenReadyListeners) cb();
+  }
+}
+
+export function ensureElvenForestAssets(): void {
+  if (elvenForestLoaded || typeof Image === 'undefined') return;
+  elvenForestLoaded = true;
+  for (const [key, src] of Object.entries(ELVEN_FOREST_FILES) as [ElvenForestAssetKey, string][]) {
+    const img = new Image();
+    img.onload = () => notifyElvenListenersIfReady();
+    img.src = src;
+    elvenForestImages.set(key, img);
+  }
+}
+
+function getElvenForestImage(key: ElvenForestAssetKey): HTMLImageElement | null {
+  ensureElvenForestAssets();
+  const img = elvenForestImages.get(key);
+  if (img && img.complete && img.naturalWidth > 0) return img;
+  return null;
+}
+
+const ELVEN_WATERFALLS = [
+  { x: 199, y: 118, w: 18, h: 28, splashY: 145 },
+  { x: 213, y: 145, w: 34, h: 31, splashY: 175 },
+  { x: 318, y: 165, w: 16, h: 19, splashY: 184 },
+] as const;
+
+const ELVEN_MUSHROOMS = [
+  { x: 21, y: 130, rx: 22, ry: 18, seed: 0.2 },
+  { x: 39, y: 145, rx: 12, ry: 10, seed: 1.4 },
+  { x: 462, y: 156, rx: 22, ry: 18, seed: 2.3 },
+  { x: 443, y: 170, rx: 12, ry: 10, seed: 3.1 },
+  { x: 428, y: 173, rx: 10, ry: 9, seed: 4.0 },
+  { x: 320, y: 148, rx: 10, ry: 8, seed: 5.2 },
+] as const;
+
+const ELVEN_LANTERNS = [
+  { key: 'lantern_l' as const, px: 98, py: 22, drawW: 17, drawH: 39, speed: 1.35, amp: 0.042, seed: 0.3, glowY: 44, glowR: 46 },
+  { key: 'lantern_r1' as const, px: 369, py: 54, drawW: 15, drawH: 31, speed: 1.55, amp: 0.048, seed: 1.8, glowY: 73, glowR: 30 },
+  { key: 'lantern_r2' as const, px: 404, py: 68, drawW: 17, drawH: 33, speed: 1.45, amp: 0.045, seed: 3.2, glowY: 86, glowR: 38 },
+] as const;
+
+const ELVEN_FLOWERS = [
+  { x: 24, y: 168, color: '#c084fc', seed: 0.4 },
+  { x: 54, y: 174, color: '#a855f7', seed: 1.3 },
+  { x: 136, y: 168, color: '#e879f9', seed: 2.1 },
+  { x: 184, y: 167, color: '#d946ef', seed: 3.0 },
+  { x: 348, y: 178, color: '#c084fc', seed: 3.8 },
+  { x: 432, y: 184, color: '#a855f7', seed: 4.7 },
+  { x: 16, y: 256, color: '#818cf8', seed: 5.4 },
+  { x: 54, y: 261, color: '#67e8f9', seed: 6.1 },
+  { x: 304, y: 260, color: '#38bdf8', seed: 6.9 },
+  { x: 454, y: 256, color: '#c084fc', seed: 7.6 },
+] as const;
+
+interface ElvenFirefly {
+  baseX: number;
+  baseY: number;
+  ampX: number;
+  ampY: number;
+  speed: number;
+  phase: number;
+  size: number;
+  warm: boolean;
+}
+
+const elvenFireflies: ElvenFirefly[] = Array.from({ length: 30 }, (_, idx) => ({
+  baseX: 16 + ((idx * 47) % 448),
+  baseY: 28 + ((idx * 31) % 162),
+  ampX: 6 + (idx % 4) * 3.5,
+  ampY: 4 + (idx % 3) * 2.8,
+  speed: 0.75 + (idx % 5) * 0.22,
+  phase: idx * 1.43,
+  size: idx % 5 === 0 ? 2 : 1,
+  warm: idx % 3 === 0,
+}));
+
+function renderElvenForest(
+  ctx: CanvasRenderingContext2D,
+  time: number,
+  cameraXOffset: number,
+  focusX: number
+): boolean {
+  const farImg = getElvenForestImage('far');
+  const castleImg = getElvenForestImage('castle');
+  const midImg = getElvenForestImage('mid');
+  const floorImg = getElvenForestImage('floor');
+  if (!farImg || !castleImg || !midImg || !floorImg) {
+    return false;
+  }
+
+  const PAD_FAR = 20;
+  const PAD_MID = 20;
+  const PAD_FLOOR = 30;
+  const FLOOR_Y = 198;
+
+  const { farShift, castleShift, midShift, gnomeShift, floorShift } =
+    computeElvenParallaxShifts(cameraXOffset);
+
+  const blueStamp = getGlowStamp('blue');
+  const goldStamp = getGlowStamp('gold');
+  const elvenCyanStamp = getGlowStamp('elven_cyan');
+  const elvenMistStamp = getGlowStamp('elven_mist');
+  const foamStamp = getGlowStamp('water_foam');
+
+  const prevSmooth = ctx.imageSmoothingEnabled;
+  ctx.imageSmoothingEnabled = true;
+
+  // ==================== LAYER 1: SKY & DISTANT MOONLIGHT ====================
+  ctx.drawImage(farImg, Math.round(-PAD_FAR + farShift), 0);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const skyMoonPulse = 0.14 + 0.05 * Math.sin(time * 0.9);
+  drawGlowStamp(ctx, blueStamp, 242 + farShift, 34, 72, 48, skyMoonPulse);
+  ctx.restore();
+
+  // Drifting high twilight cloud mist
+  ctx.save();
+  for (let i = 0; i < 4; i++) {
+    const cx = ((time * 3.2 + i * 135) % (STAGE_WIDTH + 160)) - 80 + farShift;
+    const cy = 22 + (i % 3) * 16;
+    drawGlowStamp(ctx, elvenMistStamp, cx, cy, 66, 13, 0.24);
+  }
+  ctx.restore();
+
+  // ==================== LAYER 2: MONUMENTAL ELVEN CASTLE & MOUNTAINS ====================
+  ctx.drawImage(castleImg, Math.round(-PAD_FAR + castleShift), 0);
+
+  // Subtle living warm-ivory shimmer inside elven castle spires & grand archway
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const castlePulse = 0.1 + 0.04 * Math.sin(time * 1.4);
+  drawGlowStamp(ctx, goldStamp, 290 + castleShift, 62, 24, 34, castlePulse);
+  drawGlowStamp(ctx, blueStamp, 278 + castleShift, 48, 44, 38, castlePulse * 0.75);
+  drawGlowStamp(ctx, goldStamp, 286 + castleShift, 114, 18, 16, castlePulse * 0.9);
+  ctx.restore();
+
+  // ==================== LAYER 3: GIANT TREES, STONE BRIDGE & WATERFALLS ====================
+  ctx.drawImage(midImg, Math.round(-PAD_MID + midShift), 0);
+
+  // Continuous cascading waterfall streams + plunge-pool foam + dynamic water reflections
+  ctx.save();
+  const wfTick = time * 42;
+  for (let i = 0; i < ELVEN_WATERFALLS.length; i++) {
+    const wf = ELVEN_WATERFALLS[i];
+    const wx = wf.x + midShift;
+    const lanes = Math.max(4, Math.floor(wf.w / 3));
+    for (let l = 0; l < lanes; l++) {
+      const lx = Math.round(wx + 1 + (l * (wf.w - 2)) / lanes);
+      const speed = 1 + (l % 3) * 0.24;
+      const offset = (wfTick * speed + l * 5.2 + i * 7) % 12;
+      for (let sy = wf.y + offset; sy < wf.y + wf.h - 2; sy += 12) {
+        const relY = (sy - wf.y) / wf.h;
+        const taper = Math.sin(Math.max(0.08, Math.min(0.95, relY)) * Math.PI);
+        ctx.globalAlpha = (l % 2 === 0 ? 0.44 : 0.28) * taper;
+        ctx.fillStyle = l % 2 === 0 ? '#e0f2fe' : '#7dd3fc';
+        ctx.fillRect(lx, Math.round(sy), 1, 5);
+        ctx.fillRect(lx + 1, Math.round(sy + 2), 1, 3);
+      }
+    }
+    const splashPulse = 0.24 + 0.08 * Math.sin(time * 6.2 + i * 1.7);
+    drawGlowStamp(ctx, foamStamp, wx + wf.w * 0.5, wf.splashY, wf.w * 0.9, 6.5, splashPulse);
+  }
+
+  // Dynamic shimmering horizontal water ripples across the elven river pool (x=212..326, y=174..195)
+  ctx.globalCompositeOperation = 'lighter';
+  for (let r = 0; r < 9; r++) {
+    const ry = 176 + r * 2;
+    const rx = 224 + ((r * 17) % 78) + Math.sin(time * 2.1 + r * 1.3) * 7 + midShift;
+    const rw = 8 + (r % 3) * 5;
+    ctx.globalAlpha = 0.16 + 0.12 * Math.sin(time * 3.4 + r * 1.1);
+    ctx.fillStyle = r % 3 === 0 ? '#bae6fd' : '#67e8f9';
+    ctx.fillRect(Math.round(rx), ry, rw, 1);
+  }
+  ctx.restore();
+
+  // ==================== LAYER 4: HIDDEN GNOMES, MUSHROOMS & VEGETATION ====================
+  const gnome1Img = getElvenForestImage('gnome_1');
+  const gnome2Img = getElvenForestImage('gnome_2');
+  const gnome3Img = getElvenForestImage('gnome_3');
+  const gnome4Img = getElvenForestImage('gnome_4');
+  const occLTrunk = getElvenForestImage('occ_l_trunk');
+  const occRRock = getElvenForestImage('occ_r_rock');
+  const occRBoulder = getElvenForestImage('occ_r_boulder');
+  const occLBush = getElvenForestImage('occ_l_bush');
+
+  const drawAnimatedGnome = (
+    img: HTMLImageElement | null,
+    specIdx: number,
+    drawW: number,
+    drawH: number,
+    pivotRelX: number,
+    pivotRelY: number,
+    eyeRelX: number,
+    eyeRelY: number,
+    flipX = false
+  ) => {
+    if (!img) return;
+    const spec = ELVEN_GNOME_SPECS[specIdx];
+    const pose = evaluateGnomeBehavior(spec, time, focusX);
+    if (pose.visibility <= 0.02) return;
+
+    const gx = spec.x + gnomeShift + pose.offsetX;
+    const gy = spec.y + pose.offsetY;
+
+    ctx.save();
+    ctx.translate(gx, gy);
+    ctx.rotate(pose.headTilt);
+    const scaleFlip = flipX ? -1 : 1;
+    ctx.scale(scaleFlip * spec.scale, spec.scale);
+
+    const dx = -drawW * pivotRelX;
+    const dy = -drawH * pivotRelY;
+    ctx.drawImage(img, dx, dy, drawW, drawH);
+
+    // Subtle eye glance & momentary natural blink without altering art design
+    const ex = dx + drawW * eyeRelX;
+    const ey = dy + drawH * eyeRelY;
+    if (pose.eyeOpen === 0) {
+      ctx.fillStyle = 'rgba(138, 86, 62, 0.85)';
+      ctx.fillRect(Math.round(ex - 3), Math.round(ey), 7, 1);
+    } else {
+      const pupilShift = Math.round(pose.lookDir * scaleFlip * 0.9);
+      ctx.fillStyle = 'rgba(255, 245, 225, 0.45)';
+      ctx.fillRect(Math.round(ex - 2 + pupilShift), Math.round(ey), 1, 1);
+      ctx.fillRect(Math.round(ex + 2 + pupilShift), Math.round(ey), 1, 1);
+    }
+
+    // Discrete hand/cap micro-motion near lower cloak while watching fighters
+    if (Math.abs(pose.handWave) > 0.15) {
+      ctx.fillStyle = 'rgba(224, 172, 134, 0.5)';
+      ctx.fillRect(Math.round(dx + drawW * 0.28), Math.round(dy + drawH * 0.84 + pose.handWave * 0.8), 2, 2);
+    }
+    ctx.restore();
+  };
+
+  // Gnome 5 (Bridge watcher behind stone bridge parapet & mossy fern)
+  drawAnimatedGnome(gnome4Img, 4, 16, 22, 0.5, 0.9, 0.52, 0.48, false);
+  if (occLBush) {
+    // Subtle mossy fern silhouette lip along bridge parapet covering lower chest
+    ctx.save();
+    ctx.globalAlpha = 0.88;
+    ctx.fillStyle = '#0c1b29';
+    ctx.fillRect(Math.round(296 + midShift), 137, 16, 6);
+    ctx.fillStyle = '#193545';
+    ctx.fillRect(Math.round(298 + midShift), 136, 12, 2);
+    ctx.restore();
+  }
+
+  // Gnome 4 (Emerald-capped gnome peeking behind left signpost mossy boulder)
+  drawAnimatedGnome(gnome4Img, 3, 17, 23, 0.5, 0.88, 0.52, 0.48, false);
+  if (occLBush) {
+    ctx.drawImage(occLBush, Math.round(64 + midShift), 166);
+  }
+
+  // Gnome 1 (Left giant tree trunk gnome — peeking behind bark ridge)
+  drawAnimatedGnome(gnome1Img, 0, 24, 40, 0.48, 0.6, 0.62, 0.43, false);
+  if (occLTrunk) {
+    ctx.drawImage(occLTrunk, Math.round(14 + midShift), 54);
+  }
+
+  // Gnome 2 (Right lower mossy rock gnome — watch & hide behind boulder/flowers)
+  drawAnimatedGnome(gnome2Img, 1, 17, 23, 0.5, 0.88, 0.5, 0.48, false);
+  if (occRRock) {
+    ctx.drawImage(occRRock, Math.round(384 + midShift), 176);
+  }
+
+  // Gnome 3 (Right upper tree/boulder gnome — peeking beside right giant tree)
+  drawAnimatedGnome(gnome3Img, 2, 17, 30, 0.5, 0.65, 0.52, 0.54, false);
+  if (occRBoulder) {
+    ctx.drawImage(occRBoulder, Math.round(420 + midShift), 144);
+  }
+
+  // Luminous Giant Blue Mushrooms pulsing gently with cyan-blue bioluminescence
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < ELVEN_MUSHROOMS.length; i++) {
+    const m = ELVEN_MUSHROOMS[i];
+    const pulse = computeMushroomPulse(time, m.seed);
+    drawGlowStamp(ctx, elvenCyanStamp, m.x + midShift, m.y, m.rx * (0.9 + 0.14 * pulse), m.ry * (0.9 + 0.14 * pulse), 0.24 * pulse);
+  }
+  ctx.restore();
+
+  // Gently swaying hanging mossy vines & fluttering purple/cyan flower blossoms
+  ctx.save();
+  const breeze = Math.sin(time * 1.65);
+  const vineAnchors = [
+    { x: 118, y: 28, len: 24 },
+    { x: 132, y: 34, len: 22 },
+    { x: 152, y: 30, len: 20 },
+    { x: 356, y: 42, len: 18 },
+    { x: 382, y: 38, len: 24 },
+  ];
+  for (let i = 0; i < vineAnchors.length; i++) {
+    const v = vineAnchors[i];
+    const swayTip = Math.sin(time * 1.9 + i * 1.2) * 2.2;
+    ctx.strokeStyle = i < 3 ? 'rgba(18, 42, 34, 0.72)' : 'rgba(22, 36, 54, 0.72)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(v.x + midShift, v.y);
+    ctx.quadraticCurveTo(
+      v.x + midShift + swayTip * 0.5,
+      v.y + v.len * 0.5,
+      v.x + midShift + swayTip,
+      v.y + v.len
+    );
+    ctx.stroke();
+  }
+  for (let i = 0; i < ELVEN_FLOWERS.length; i++) {
+    const fl = ELVEN_FLOWERS[i];
+    const fShift = fl.y >= FLOOR_Y ? floorShift : midShift;
+    const fx = fl.x + fShift + Math.sin(time * 2.2 + fl.seed) * 0.9 + breeze * 0.35;
+    const fy = fl.y + Math.cos(time * 1.8 + fl.seed) * 0.4;
+    ctx.globalAlpha = 0.45 + 0.35 * Math.sin(time * 2.6 + fl.seed);
+    ctx.fillStyle = fl.color;
+    ctx.fillRect(Math.round(fx), Math.round(fy), 2, 2);
+  }
+  ctx.restore();
+
+  // ==================== LAYER 5: VOLUMETRIC RAYS, MIST, LANTERNS, FIREFLIES & BUTTERFLIES ====================
+  // Volumetric diagonal twilight & moonlight beams filtering through ancient tree canopy
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const ray1 = 0.055 + 0.025 * Math.sin(time * 0.8);
+  const rayGrad1 = ctx.createLinearGradient(232 + castleShift, 0, 160 + midShift, 188);
+  rayGrad1.addColorStop(0, `rgba(147, 197, 253, ${ray1})`);
+  rayGrad1.addColorStop(1, 'rgba(59, 130, 246, 0)');
+  ctx.fillStyle = rayGrad1;
+  ctx.beginPath();
+  ctx.moveTo(212 + castleShift, 0);
+  ctx.lineTo(256 + castleShift, 0);
+  ctx.lineTo(192 + midShift, 194);
+  ctx.lineTo(132 + midShift, 194);
+  ctx.closePath();
+  ctx.fill();
+
+  const ray2 = 0.05 + 0.02 * Math.sin(time * 0.8 + 1.9);
+  const rayGrad2 = ctx.createLinearGradient(294 + castleShift, 0, 326 + midShift, 188);
+  rayGrad2.addColorStop(0, `rgba(196, 181, 253, ${ray2})`);
+  rayGrad2.addColorStop(1, 'rgba(99, 102, 241, 0)');
+  ctx.fillStyle = rayGrad2;
+  ctx.beginPath();
+  ctx.moveTo(276 + castleShift, 0);
+  ctx.lineTo(318 + castleShift, 0);
+  ctx.lineTo(356 + midShift, 194);
+  ctx.lineTo(298 + midShift, 194);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // Soft enchanted forest mist drifting across river pool and between tree roots
+  ctx.save();
+  for (let i = 0; i < 6; i++) {
+    const mx = ((time * 6.5 + i * 105) % (STAGE_WIDTH + 160)) - 80 + midShift * 0.45;
+    const my = 162 + (i % 3) * 11;
+    drawGlowStamp(ctx, elvenMistStamp, mx, my, 68, 12, 0.22);
+  }
+  ctx.restore();
+
+  // 3 Hanging Golden Lanterns swaying gently + warm flickering illumination
+  for (let i = 0; i < ELVEN_LANTERNS.length; i++) {
+    const lan = ELVEN_LANTERNS[i];
+    const lanImg = getElvenForestImage(lan.key);
+    const angle = Math.sin(time * lan.speed + lan.seed) * lan.amp;
+    const flick = computeLanternFlicker(time, lan.seed);
+    const lx = lan.px + midShift;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    drawGlowStamp(ctx, goldStamp, lx + Math.sin(angle) * 14, lan.glowY, lan.glowR * flick, lan.glowR * 0.9 * flick, 0.34 * flick);
+    ctx.restore();
+
+    if (lanImg) {
+      ctx.save();
+      ctx.translate(lx, lan.py);
+      ctx.rotate(angle);
+      ctx.drawImage(lanImg, -lan.drawW * 0.5, 0, lan.drawW, lan.drawH);
+      ctx.restore();
+    }
+  }
+
+  // Floating luminous fireflies & forest spores
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < elvenFireflies.length; i++) {
+    const f = elvenFireflies[i];
+    const fx = f.baseX + Math.sin(time * f.speed + f.phase) * f.ampX + midShift * 0.7;
+    const fy = f.baseY + Math.cos(time * (f.speed * 0.85) + f.phase * 1.2) * f.ampY;
+    const glow = 0.25 + 0.75 * Math.pow(0.5 + 0.5 * Math.sin(time * 2.8 + f.phase), 2);
+    ctx.globalAlpha = glow * 0.85;
+    ctx.fillStyle = f.warm ? '#fde047' : '#67e8f9';
+    ctx.fillRect(Math.round(fx), Math.round(fy), f.size, f.size);
+    if (f.size > 1 && glow > 0.6) {
+      drawGlowStamp(ctx, f.warm ? goldStamp : elvenCyanStamp, fx + 1, fy + 1, 5, 5, glow * 0.28);
+    }
+  }
+  ctx.restore();
+
+  // Occasional magical butterflies fluttering gracefully through the glade
+  ctx.save();
+  for (let i = 0; i < ELVEN_BUTTERFLIES.length; i++) {
+    const bState = evaluateButterflyState(ELVEN_BUTTERFLIES[i], time);
+    if (!bState.visible) continue;
+    const spec = ELVEN_BUTTERFLIES[i];
+    const bx = bState.x + midShift * 0.75;
+    const by = bState.y;
+
+    ctx.save();
+    ctx.translate(bx, by);
+    ctx.rotate(bState.heading);
+    ctx.globalCompositeOperation = 'lighter';
+    drawGlowStamp(ctx, elvenCyanStamp, 0, 0, 6, 5, bState.alpha * 0.28);
+
+    ctx.globalAlpha = bState.alpha * 0.92;
+    ctx.fillStyle = spec.colorPrimary;
+    const wingW = Math.max(1, 3.2 * bState.wingScaleX);
+    // Left & right delicate wing silhouette
+    ctx.beginPath();
+    ctx.ellipse(-wingW * 0.6, -0.5, wingW * 0.7, 1.8, -0.35, 0, Math.PI * 2);
+    ctx.ellipse(wingW * 0.6, -0.5, wingW * 0.7, 1.8, 0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, -1, 1, 2);
+    ctx.restore();
+  }
+  ctx.restore();
+
+  // ==================== LAYER 6: WET COBBLESTONE COMBAT PLATFORM ====================
+  ctx.drawImage(floorImg, Math.round(-PAD_FLOOR + floorShift), FLOOR_Y);
+
+  // Dynamic lantern reflection on wet left cobblestones + moonlight shimmer center
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const leftLanternFlick = computeLanternFlicker(time, 0.3);
+  drawGlowStamp(ctx, goldStamp, 88 + floorShift, 209, 44, 10, 0.14 * leftLanternFlick);
+  drawGlowStamp(ctx, elvenCyanStamp, 248 + floorShift, 207, 68, 10, 0.08 + 0.04 * Math.sin(time * 2.2));
+  ctx.restore();
+
+  ctx.imageSmoothingEnabled = prevSmooth;
+  return true;
+}
+
+type FavelaAssetKey =
+  | 'far'
+  | 'hills'
+  | 'mid'
+  | 'floor'
+  | 'heli'
+  | 'flag_l'
+  | 'flag_c'
+  | 'flag_r';
+
+const FAVELA_FILES: Record<FavelaAssetKey, string> = {
+  far: '/assets/arenas/favela_far.png',
+  hills: '/assets/arenas/favela_hills.png',
+  mid: '/assets/arenas/favela_mid.png',
+  floor: '/assets/arenas/favela_floor.png',
+  heli: '/assets/arenas/favela_heli.png',
+  flag_l: '/assets/arenas/favela_flag_l.png',
+  flag_c: '/assets/arenas/favela_flag_c.png',
+  flag_r: '/assets/arenas/favela_flag_r.png',
+};
+
+const favelaImages = new Map<FavelaAssetKey, HTMLImageElement>();
+const favelaReadyListeners = new Set<() => void>();
+let favelaLoaded = false;
+
+export function onFavelaAssetsReady(cb: () => void): () => void {
+  favelaReadyListeners.add(cb);
+  ensureFavelaAssets();
+  const coreReady =
+    getFavelaImage('far') &&
+    getFavelaImage('hills') &&
+    getFavelaImage('mid') &&
+    getFavelaImage('floor');
+  if (coreReady) {
+    cb();
+  }
+  return () => {
+    favelaReadyListeners.delete(cb);
+  };
+}
+
+function notifyFavelaListenersIfReady(): void {
+  const far = favelaImages.get('far');
+  const hills = favelaImages.get('hills');
+  const mid = favelaImages.get('mid');
+  const floor = favelaImages.get('floor');
+  if (
+    far?.complete &&
+    far.naturalWidth > 0 &&
+    hills?.complete &&
+    hills.naturalWidth > 0 &&
+    mid?.complete &&
+    mid.naturalWidth > 0 &&
+    floor?.complete &&
+    floor.naturalWidth > 0
+  ) {
+    for (const cb of favelaReadyListeners) cb();
+  }
+}
+
+export function ensureFavelaAssets(): void {
+  if (favelaLoaded || typeof Image === 'undefined') return;
+  favelaLoaded = true;
+  for (const [key, src] of Object.entries(FAVELA_FILES) as [FavelaAssetKey, string][]) {
+    const img = new Image();
+    img.onload = () => notifyFavelaListenersIfReady();
+    img.src = src;
+    favelaImages.set(key, img);
+  }
+}
+
+function getFavelaImage(key: FavelaAssetKey): HTMLImageElement | null {
+  ensureFavelaAssets();
+  const img = favelaImages.get(key);
+  if (img && img.complete && img.naturalWidth > 0) return img;
+  return null;
+}
+
+const FAVELA_CLOUDS = [
+  { baseX: 64, y: 22, w: 38, speed: 2.0 },
+  { baseX: 205, y: 15, w: 46, speed: 1.5 },
+  { baseX: 342, y: 25, w: 34, speed: 2.3 },
+] as const;
+
+const FAVELA_LEFT_LEAF_CLUSTERS = [
+  { x: 18, y: 12, color: '#6b9e38', seed: 0.2 },
+  { x: 36, y: 8, color: '#82b546', seed: 1.1 },
+  { x: 54, y: 16, color: '#4f7f29', seed: 1.9 },
+  { x: 74, y: 10, color: '#78ad40', seed: 2.7 },
+  { x: 96, y: 19, color: '#82b546', seed: 3.4 },
+  { x: 116, y: 14, color: '#5c8d32', seed: 4.2 },
+  { x: 132, y: 9, color: '#78ad40', seed: 5.0 },
+] as const;
+
+const FAVELA_PALM_FRONDS = [
+  { x: 342, y: 44, dx: -3, dy: 2, seed: 0.4 },
+  { x: 346, y: 38, dx: -3, dy: 1, seed: 1.3 },
+  { x: 356, y: 36, dx: 0, dy: -2, seed: 2.1 },
+  { x: 366, y: 39, dx: 3, dy: 1, seed: 2.9 },
+  { x: 371, y: 46, dx: 3, dy: 2, seed: 3.7 },
+] as const;
+
+const FAVELA_SPEAKER_CONES = [
+  { x: 36, y: 109, r: 5 },
+  { x: 36, y: 128, r: 6 },
+  { x: 36, y: 152, r: 8 },
+  { x: 36, y: 179, r: 8 },
+] as const;
+
+function drawWavingPixelFlag(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  dstX: number,
+  dstY: number,
+  dstW: number,
+  dstH: number,
+  time: number,
+  seed: number
+): void {
+  const srcW = img.naturalWidth || img.width;
+  const srcH = img.naturalHeight || img.height;
+  if (srcW <= 0 || srcH <= 0) return;
+  const stripCount = Math.max(6, Math.round(dstH / 2));
+  const srcStep = srcH / stripCount;
+  const dstStep = dstH / stripCount;
+  for (let i = 0; i < stripCount; i++) {
+    const rowNorm = i / Math.max(1, stripCount - 1);
+    const waveX = Math.round(computeFlagWaveOffset(time, rowNorm, seed));
+    const sy = Math.floor(i * srcStep);
+    const sh = Math.max(1, Math.ceil((i + 1) * srcStep) - sy);
+    const dy = Math.round(dstY + i * dstStep);
+    const dh = Math.max(1, Math.round(dstY + (i + 1) * dstStep) - dy);
+    ctx.drawImage(img, 0, sy, srcW, sh, Math.round(dstX + waveX), dy, dstW, dh);
+  }
+}
+
+function drawFavelaSpectatorPixel(
+  ctx: CanvasRenderingContext2D,
+  spec: (typeof FAVELA_CROWD_SPECS)[number],
+  time: number,
+  crowdShift: number
+): void {
+  const pose = evaluateFavelaSpectator(spec, time);
+  const px = Math.round(pose.x + crowdShift);
+  const baseY = Math.round(pose.y);
+  const shoulderY = Math.round(pose.shoulderY);
+  const headY = Math.round(pose.headY);
+  const halfW = Math.floor(spec.width / 2);
+
+  // Lower trousers / shorts in deep indigo shadow behind wire mesh (no thin stick gaps)
+  if (spec.zone === 'fence') {
+    const waistY = shoulderY + 19;
+    const legH = Math.max(4, baseY - waistY);
+    ctx.fillStyle = '#0d1222';
+    ctx.fillRect(px - halfW + 1, waistY, spec.width - 2, legH);
+    ctx.fillStyle = '#151c33';
+    ctx.fillRect(px - halfW + 2, waistY + 1, Math.max(2, halfW - 2), legH - 2);
+    ctx.fillRect(px + 1, waistY + 1, Math.max(2, halfW - 2), legH - 2);
+  }
+
+  // Natural tapered hoodie / tee torso silhouette matching the reference crowd
+  const torsoH = Math.max(14, (spec.zone === 'fence' ? 20 : baseY - shoulderY));
+  ctx.fillStyle = '#0c101d';
+  ctx.fillRect(px - halfW + 1, shoulderY, spec.width - 2, 1);
+  ctx.fillStyle = spec.shirtShade;
+  ctx.fillRect(px - halfW, shoulderY + 1, spec.width, torsoH);
+  ctx.fillStyle = spec.shirtColor;
+  ctx.fillRect(px - halfW + 1, shoulderY + 1, spec.width - 3, torsoH - 2);
+  // Subtle collar / daylight shoulder rim
+  ctx.fillStyle = '#33415c';
+  ctx.fillRect(px - halfW + 2, shoulderY + 1, spec.width - 5, 1);
+
+  // Head & cap/hair with dark silhouette + subtle warm facial highlights
+  ctx.fillStyle = '#0c101d';
+  ctx.fillRect(px - 3, headY, 6, 7);
+  ctx.fillStyle = spec.skinColor;
+  ctx.fillRect(px - 2, headY + 2, 4, 4);
+  ctx.fillStyle = spec.hasCap ? '#1b2640' : '#0b0e19';
+  ctx.fillRect(px - 3, headY, 6, 2);
+  if (spec.hasCap) {
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(spec.id % 2 === 0 ? px - 4 : px + 1, headY + 1, 3, 1);
+  }
+  ctx.fillStyle = '#0e1322';
+  ctx.fillRect(px - 2, headY + 3, 1, 1);
+  ctx.fillRect(px + 1, headY + 3, 1, 1);
+
+  // Natural bent / waving arms celebrating above fence rail
+  const leftRaisePx = Math.round(pose.leftArmRaise * 11);
+  const rightRaisePx = Math.round(pose.rightArmRaise * 11);
+
+  if (pose.leftArmRaise > 0.25) {
+    const elbowX = px - halfW - 1;
+    const elbowY = shoulderY + 4;
+    const handY = shoulderY + 2 - leftRaisePx;
+    ctx.fillStyle = '#0c101d';
+    ctx.fillRect(elbowX - 1, Math.min(elbowY, handY) - 1, 3, Math.abs(elbowY - handY) + 3);
+    ctx.fillStyle = spec.shirtColor;
+    ctx.fillRect(elbowX, shoulderY + 1, 2, 4);
+    ctx.fillStyle = spec.skinColor;
+    ctx.fillRect(elbowX - 1, handY, 2, 3);
+  }
+  if (pose.rightArmRaise > 0.25) {
+    const elbowX = px + halfW - 1;
+    const elbowY = shoulderY + 4;
+    const handY = shoulderY + 2 - rightRaisePx;
+    ctx.fillStyle = '#0c101d';
+    ctx.fillRect(elbowX, Math.min(elbowY, handY) - 1, 3, Math.abs(elbowY - handY) + 3);
+    ctx.fillStyle = spec.shirtColor;
+    ctx.fillRect(elbowX, shoulderY + 1, 2, 4);
+    ctx.fillStyle = spec.skinColor;
+    ctx.fillRect(elbowX + 1, handY, 2, 3);
+  }
+}
+
+function renderFavelaArena(
+  ctx: CanvasRenderingContext2D,
+  time: number,
+  cameraXOffset: number
+): boolean {
+  const farImg = getFavelaImage('far');
+  const hillsImg = getFavelaImage('hills');
+  const midImg = getFavelaImage('mid');
+  const floorImg = getFavelaImage('floor');
+  if (!farImg || !hillsImg || !midImg || !floorImg) {
+    return false;
+  }
+
+  const PAD_FAR = 20;
+  const PAD_HILLS = 20;
+  const PAD_MID = 20;
+  const PAD_FLOOR = 30;
+  const FLOOR_Y = 198;
+
+  const { farShift, hillsShift, crowdShift, midShift, floorShift } =
+    computeFavelaParallaxShifts(cameraXOffset);
+
+  const prevSmooth = ctx.imageSmoothingEnabled;
+  ctx.imageSmoothingEnabled = false;
+
+  // 1. FAR SKY LAYER: Daylight blue sky, Cristo Redentor hill & distant city
+  ctx.drawImage(farImg, Math.round(-PAD_FAR + farShift), 0);
+
+  // Soft stepped pixel-art cloud wisps drifting gently in the upper sky
+  ctx.save();
+  for (let i = 0; i < FAVELA_CLOUDS.length; i++) {
+    const cl = FAVELA_CLOUDS[i];
+    const cx = Math.round(((cl.baseX + time * cl.speed) % (STAGE_WIDTH + 90)) - 45 + farShift);
+    ctx.fillStyle = '#e0f2fe';
+    ctx.globalAlpha = 0.11;
+    ctx.fillRect(cx + 4, cl.y, cl.w - 8, 3);
+    ctx.fillRect(cx + 9, cl.y - 3, cl.w - 18, 3);
+    ctx.fillRect(cx + 15, cl.y - 5, Math.max(8, cl.w - 30), 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 0.08;
+    ctx.fillRect(cx + 10, cl.y - 2, cl.w - 22, 2);
+  }
+  ctx.restore();
+
+  // Subtle diagonal daytime sunlight shafts across the sky & hillside
+  ctx.save();
+  ctx.fillStyle = 'rgba(254, 249, 195, 0.032)';
+  for (let i = 0; i < 3; i++) {
+    const bx = 95 + i * 95 + Math.sin(time * 0.4 + i) * 6 + farShift;
+    ctx.beginPath();
+    ctx.moveTo(bx, 0);
+    ctx.lineTo(bx + 36, 0);
+    ctx.lineTo(bx - 42, 165);
+    ctx.lineTo(bx - 76, 165);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Animated distant helicopter with spinning main & tail rotors
+  const heliImg = getFavelaImage('heli');
+  const heli = evaluateHelicopterState(time);
+  if (heliImg) {
+    const hx = Math.round(heli.x + farShift);
+    const hy = Math.round(heli.y);
+    ctx.save();
+    ctx.translate(hx + 21, hy + 8);
+    ctx.rotate(heli.tilt);
+    ctx.drawImage(heliImg, -21, -8, 42, 15);
+    // Spinning main rotor disc centered cleanly over the mast (+3, -7)
+    const span = Math.round(heli.rotorSpanHalf);
+    ctx.fillStyle = 'rgba(226, 232, 240, 0.36)';
+    ctx.fillRect(3 - span, -7, span * 2, 1);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(3 - Math.round(span * 0.55), -7, Math.round(span * 1.1), 1);
+    // Tail rotor pulse at rear boom (-19, -5)
+    ctx.globalAlpha = heli.tailPulse;
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(-19, -6, 1, 4);
+    ctx.restore();
+  }
+
+  // 2. HILLSIDE COMMUNITY LAYER: Colorful hillside houses, palm tree & sunlit alley behind fence
+  ctx.drawImage(hillsImg, Math.round(-PAD_HILLS + hillsShift), 0);
+
+  // Subtle palm frond sway in breeze
+  for (let i = 0; i < FAVELA_PALM_FRONDS.length; i++) {
+    const fr = FAVELA_PALM_FRONDS[i];
+    const sway = Math.round(Math.sin(time * 2.1 + fr.seed) * 1.1);
+    const fx = Math.round(fr.x + hillsShift + sway);
+    const fy = Math.round(fr.y + Math.round(Math.cos(time * 1.8 + fr.seed) * 0.5));
+    ctx.fillStyle = i % 2 === 0 ? '#2f5e36' : '#3f7642';
+    ctx.fillRect(fx, fy, 3, 2);
+    ctx.fillRect(fx + (fr.dx > 0 ? 2 : -1), fy + 1, 2, 1);
+  }
+
+  // 3. ANIMATED CROWD BEHIND LEFT BALCONY WALL & CENTER CHAIN-LINK FENCE
+  for (let i = 0; i < FAVELA_CROWD_SPECS.length; i++) {
+    drawFavelaSpectatorPixel(ctx, FAVELA_CROWD_SPECS[i], time, crowdShift);
+  }
+
+  // 4. MID FOREGROUND STRUCTURES: Graffiti walls, speakers, diamond fence, buildings & pole
+  ctx.drawImage(midImg, Math.round(-PAD_MID + midShift), 0);
+
+  // Subtle rustling leaves inside upper-left tree foliage canopy
+  for (let i = 0; i < FAVELA_LEFT_LEAF_CLUSTERS.length; i++) {
+    const lf = FAVELA_LEFT_LEAF_CLUSTERS[i];
+    const ox = Math.round(Math.sin(time * 2.3 + lf.seed) * 1.1);
+    const oy = Math.round(Math.cos(time * 1.9 + lf.seed * 1.3) * 0.6);
+    ctx.fillStyle = lf.color;
+    ctx.fillRect(Math.round(lf.x + midShift + ox), lf.y + oy, 2, 2);
+  }
+
+  // Rhythmic bass thump on left street sound system cones
+  const bass = computeSpeakerPulse(time);
+  if (bass > 0.12) {
+    ctx.save();
+    for (let i = 0; i < FAVELA_SPEAKER_CONES.length; i++) {
+      const sp = FAVELA_SPEAKER_CONES[i];
+      const cx = Math.round(sp.x + midShift);
+      const r = sp.r + (bass > 0.55 ? 1 : 0);
+      ctx.strokeStyle = `rgba(148, 163, 184, ${(bass * 0.45).toFixed(2)})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, sp.y, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Animated swaying crown flags (anchored firmly at top)
+  const flagL = getFavelaImage('flag_l');
+  const flagC = getFavelaImage('flag_c');
+  const flagR = getFavelaImage('flag_r');
+  if (flagL) {
+    drawWavingPixelFlag(ctx, flagL, 95 + midShift, 101, 23, 28, time, 0.5);
+  }
+  if (flagC) {
+    drawWavingPixelFlag(ctx, flagC, 222 + midShift, 150, 46, 33, time, 1.8);
+  }
+  if (flagR) {
+    drawWavingPixelFlag(ctx, flagR, 429 + midShift, 39, 30, 56, time, 3.1);
+  }
+
+  // 5. FOREGROUND STREET FLOOR (FLOOR_Y = 198, concrete cracks & sunlit shadows)
+  ctx.drawImage(floorImg, Math.round(-PAD_FLOOR + floorShift), FLOOR_Y);
+
+  // Subtle floating sunlit dust particles drifting across the arena floor
+  ctx.save();
+  for (let i = 0; i < 14; i++) {
+    const dx = Math.round(((i * 39 + time * (6 + (i % 4) * 2.2)) % STAGE_WIDTH));
+    const dy = Math.round(166 + (i % 6) * 14 + Math.sin(time * 1.7 + i * 1.4) * 3.5);
+    const alpha = 0.25 + 0.22 * Math.sin(time * 2.6 + i);
+    ctx.fillStyle = `rgba(254, 243, 199, ${Math.max(0.08, alpha).toFixed(2)})`;
+    ctx.fillRect(dx, dy, i % 3 === 0 ? 2 : 1, 1);
+  }
+  ctx.restore();
+
+  ctx.imageSmoothingEnabled = prevSmooth;
+  return true;
+}
+
 export function renderArena(
   ctx: CanvasRenderingContext2D,
   arenaId: ArenaId,
   time: number,
-  cameraXOffset = 0
+  cameraXOffset = 0,
+  focusX = STAGE_WIDTH * 0.5
 ): void {
   if (arenaId === 'shadow_temple') {
     if (renderShadowTemple(ctx, time, cameraXOffset)) {
@@ -1540,6 +2463,11 @@ export function renderArena(
       return;
     }
   }
+  if (arenaId === 'elven_forest') {
+    if (renderElvenForest(ctx, time, cameraXOffset, focusX)) {
+      return;
+    }
+  }
   if (arenaId === 'celestial_cathedral') {
     if (renderCelestialCathedral(ctx, time, cameraXOffset)) {
       return;
@@ -1547,6 +2475,11 @@ export function renderArena(
   }
   if (arenaId === 'troll_lands') {
     if (renderTrollLands(ctx, time, cameraXOffset)) {
+      return;
+    }
+  }
+  if (arenaId === 'favela_vida_loka') {
+    if (renderFavelaArena(ctx, time, cameraXOffset)) {
       return;
     }
   }
@@ -1590,87 +2523,18 @@ export function renderArena(
     ctx.fillStyle = '#991b1b';
     ctx.fillRect(221, 28, 38, 80);
   } else if (arenaId === 'elven_forest') {
-    // Pale full moon
-    ctx.fillStyle = '#d1fae5';
-    ctx.fillRect(220 - pxShift, 22, 28, 28);
-    ctx.fillStyle = '#a7f3d0';
-    ctx.fillRect(224 - pxShift, 26, 20, 20);
-
-    // Distant waterfall
-    ctx.fillStyle = '#0e7490';
-    ctx.fillRect(310, 88, 28, GROUND_Y - 88);
-    const waterOffset = Math.floor(time * 24) % 8;
-    ctx.fillStyle = '#67e8f9';
-    for (let wy = 90 + waterOffset; wy < GROUND_Y; wy += 12) {
-      ctx.fillRect(314, wy, 4, 6);
-      ctx.fillRect(326, wy - 4, 4, 6);
-    }
-
-    // Giant ancient trees
-    const treeXs = [28, 128, 250, 390];
-    treeXs.forEach((tx, idx) => {
-      ctx.fillStyle = '#0a291e';
-      ctx.fillRect(tx, 20, 42 + (idx % 2) * 14, GROUND_Y - 20);
-      ctx.fillStyle = '#144533';
-      ctx.fillRect(tx + 6, 20, 12, GROUND_Y - 20);
-      // Canopy leaves
-      ctx.fillStyle = '#064e3b';
-      ctx.fillRect(tx - 24, 0, 96, 58);
-      ctx.fillStyle = '#047857';
-      ctx.fillRect(tx - 14, 12, 72, 34);
-    });
-
-    // Floating emerald fireflies
-    for (let i = 0; i < 16; i++) {
-      const fx = (i * 33 + Math.sin(time * 1.3 + i) * 18) % STAGE_WIDTH;
-      const fy = 70 + ((i * 29) % 130) + Math.cos(time * 2 + i) * 8;
-      ctx.fillStyle = i % 2 === 0 ? '#86efac' : '#fde047';
-      ctx.globalAlpha = 0.45 + 0.55 * Math.abs(Math.sin(time * 3 + i));
-      ctx.fillRect(Math.round(fx), Math.round(fy), 2, 2);
-    }
-    ctx.globalAlpha = 1;
-  } else if (arenaId === 'realm_of_dead') {
-    // Eerie purple moon
-    ctx.fillStyle = '#e9d5ff';
-    ctx.fillRect(100 - pxShift, 24, 24, 24);
-    ctx.fillStyle = '#7e22ce';
-    ctx.globalAlpha = 0.22;
-    ctx.fillRect(92 - pxShift, 16, 40, 40);
-    ctx.globalAlpha = 1;
-
-    // Jagged obsidian spires & ruined crypts
-    const spires = [34, 110, 210, 290, 396];
-    spires.forEach((sx, i) => {
-      const h = 75 + (i % 3) * 28;
-      ctx.fillStyle = '#160b24';
-      ctx.fillRect(sx, GROUND_Y - h, 26, h);
-      ctx.fillStyle = '#3b0764';
-      ctx.fillRect(sx + 4, GROUND_Y - h + 8, 6, h - 12);
-      // Glowing rune
-      ctx.fillStyle = '#c084fc';
-      ctx.fillRect(sx + 11, GROUND_Y - h + 18, 4, 8);
-    });
-
-    // Drifting ground mist & floating spectral wisps
-    const mistShift = Math.round(time * 14) % 48;
-    ctx.fillStyle = '#9333ea';
-    ctx.globalAlpha = 0.18;
-    for (let x = -48; x < STAGE_WIDTH + 48; x += 48) {
-      ctx.fillRect(x + mistShift, GROUND_Y - 14, 38, 14);
-    }
-    ctx.globalAlpha = 1;
-
-    for (let i = 0; i < 8; i++) {
-      const wx = (i * 64 + time * 16 * (i % 2 === 0 ? 1 : -1) + 480) % STAGE_WIDTH;
-      const wy = 90 + Math.sin(time * 2.2 + i) * 24 + (i % 3) * 20;
-      ctx.fillStyle = '#2dd4bf';
-      ctx.globalAlpha = 0.55;
-      ctx.fillRect(Math.round(wx), Math.round(wy), 5, 7);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(Math.round(wx) + 1, Math.round(wy) + 1, 1, 1);
-      ctx.fillRect(Math.round(wx) + 3, Math.round(wy) + 1, 1, 1);
-    }
-    ctx.globalAlpha = 1;
+    // Lightweight twilight castle & forest fallback while Floresta Élfica textures decode on frame 1
+    ctx.fillStyle = '#1e3a8a';
+    ctx.beginPath();
+    ctx.arc(242 - pxShift, 34, 24, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1e1b4b';
+    ctx.fillRect(226, 20, 120, GROUND_Y - 20);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, 72, GROUND_Y);
+    ctx.fillRect(408, 0, 72, GROUND_Y);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(212, 118, 30, 58);
   } else if (arenaId === 'celestial_cathedral') {
     // Lightweight fallback while Catedral Celestial texture decodes on first frame
     ctx.fillStyle = '#182038';
@@ -1693,6 +2557,14 @@ export function renderArena(
     ctx.fillRect(0, 108, STAGE_WIDTH, GROUND_Y - 108);
     ctx.fillStyle = '#291f30';
     ctx.fillRect(150, 32, 92, 92);
+  } else if (arenaId === 'favela_vida_loka') {
+    // Lightweight daytime favela fallback while pixel layers decode on frame 1
+    ctx.fillStyle = '#2563eb';
+    ctx.fillRect(0, 0, STAGE_WIDTH, GROUND_Y);
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillRect(0, 88, STAGE_WIDTH, GROUND_Y - 88);
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(0, 146, STAGE_WIDTH, GROUND_Y - 146);
   }
 
   // 2. Arena Floor with 90s perspective tile stripes

@@ -15,8 +15,8 @@
       "frameWidth": 122,
       "frameHeight": 166,
       "frameCount": 4,
-      "fps": 9,
-      "duration": 0.444,
+      "fps": 10,
+      "duration": 0.4,
       "loop": true,
       "anchorX": 64,
       "anchorY": 162,
@@ -456,17 +456,17 @@
     },
     "giant_scissors_open": {
       "file": "/assets/jack_estripador/effects/giant_scissors_open.png",
-      "width": 122,
+      "width": 106,
       "height": 152
     },
     "giant_scissors_closed": {
       "file": "/assets/jack_estripador/effects/giant_scissors_closed.png",
-      "width": 161,
+      "width": 155,
       "height": 129
     },
     "scissor_spin_slash": {
       "file": "/assets/jack_estripador/effects/scissor_spin_slash.png",
-      "width": 304,
+      "width": 309,
       "height": 117
     },
     "blood_splatter": {

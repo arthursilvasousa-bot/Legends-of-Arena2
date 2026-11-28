@@ -125,7 +125,7 @@ test('all 24 Lucas sequences, 10 FX sprites, and portrait exist on disk with exa
 });
 
 test('Lucas transitions smoothly: idle -> walk -> run -> roll -> crouch -> standup -> idle', () => {
-  const state = createMatchState('necromancer', 'minotaur', 'realm_of_dead', 'versus', 'normal', true);
+  const state = createMatchState('necromancer', 'minotaur', 'shadow_temple', 'versus', 'normal', true);
   assert.equal(state.f1.action, 'idle');
 
   stepMatch(state, { ...createEmptyInput(), right: true }, createEmptyInput(), 1 / 60);
@@ -155,7 +155,7 @@ test('Lucas transitions smoothly: idle -> walk -> run -> roll -> crouch -> stand
 });
 
 test('Lucas combo chains, staff attacks, and knockdown -> getup', () => {
-  const state = createMatchState('necromancer', 'necromancer', 'realm_of_dead', 'versus', 'normal', true);
+  const state = createMatchState('necromancer', 'necromancer', 'shadow_temple', 'versus', 'normal', true);
   state.f1.x = 200;
   state.f2.x = 224;
 
@@ -184,7 +184,7 @@ test('Lucas combo chains, staff attacks, and knockdown -> getup', () => {
 
 test('Lucas all 4 special attacks execute accurately in both facing directions within bounds', () => {
   for (const dir of [1, -1] as const) {
-    const state = createMatchState('necromancer', 'troll', 'realm_of_dead', 'versus', 'normal', true);
+    const state = createMatchState('necromancer', 'troll', 'shadow_temple', 'versus', 'normal', true);
     if (dir === 1) {
       state.f1.x = 120;
       state.f2.x = 260;
@@ -253,7 +253,7 @@ test('Lucas all 4 special attacks execute accurately in both facing directions w
 });
 
 test('Lucas best-of-3 victory triggers Ritual da Morte finisher FX and KO prone posture', () => {
-  const state = createMatchState('necromancer', 'ninja', 'realm_of_dead', 'versus', 'normal', true);
+  const state = createMatchState('necromancer', 'ninja', 'shadow_temple', 'versus', 'normal', true);
   state.f1.roundsWon = 1;
   state.f2.hp = 1;
   state.f1.x = 200;
@@ -280,7 +280,7 @@ test('resolveNecromancerFrame yields valid in-bounds indices for every FighterAc
     'special1', 'special2', 'special3', 'special4',
     'hitstun', 'knockdown', 'getup', 'ko', 'victory',
   ];
-  const state = createMatchState('necromancer', 'ninja', 'realm_of_dead', 'versus', 'normal', true);
+  const state = createMatchState('necromancer', 'ninja', 'shadow_temple', 'versus', 'normal', true);
   for (const act of actions) {
     state.f1.action = act;
     state.f1.actionTime = 0.15;
